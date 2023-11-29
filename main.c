@@ -11,6 +11,7 @@
 // ###### Constant Variables #####
 // ###############################
 #define MAX_MOVIES 1000
+#define STREAM_SERVICE_COUNT 11
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -75,7 +76,7 @@ struct movie
 
 typedef struct
 {
-    char[50] service;
+    char service[50];
     int toggle;
 } availableServices;
 
@@ -83,19 +84,42 @@ typedef struct
 // ###### Prototypes #####
 // #######################
 void welcome();
-void adjust_s_services(int *available_s);
-void print_services(int *available_s);
-void select_change(available_s);
+void adjust_s_services();
+void print_services();
+void change_service();
 void printMenu();
-int is_element_in_array(int x, int arr[]);
+int is_element_in_array(int x, int arr[], int arrayLength);
 void import_movies(int movie_array[]);
+
+// ##########################
+// ###### Global Values #####
+// ##########################
+availableServices streamingServices[11] = {
+    {"netflix", 0},
+    {"drtv", 0},
+    {"hbo", 0},
+    {"disney", 0},
+    {"tv2play", 0},
+    {"skyshowtime", 0},
+    {"filmstriben", 0},
+    {"viaplay", 0},
+    {"cmore", 0},
+    {"amazone_prime", 0},
+    {"rakuten", 0}};
 
 //////////////
 /////MAIN/////
 //////////////
 void main(void)
 {
-    welcome();
+    int running = 1;
+
+    system(CLEAR_SCREEN);
+
+    while (running)
+    {
+        printMenu();
+    }
 }
 
 // Function for welcomming the new user
@@ -103,21 +127,18 @@ void welcome()
 {
     printf("\nHey mate, welcome to this movie recommender\n");
     printf("\n");
-    printf("\n");
-    printf("\n");
-    printf("\n");
-    printf("\n");
 }
 
-// ###########################
+// ########################### // Go from global variable to pointers
 // ###### Menu functions #####
 // ###########################
 void printMenu()
 {
     // Integer value for selecting menu option
     int selection;
-    int (*arrayOfFunctions[])() = {1, 2, adjust_s_services, 4};
-    int menuOption[] = {1, 2, 3};
+    void (*arrayOfFunctions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, adjust_s_services};
+    int menuOption[] = {1, 2, 3, 4};
+    int arrayMenuLength = 4;
 
     // Print menu options
     printf("== MENU ==\n");
@@ -127,9 +148,9 @@ void printMenu()
 
     scanf("%d", &selection);
 
-    if (is_element_in_array(selection, menuOption))
+    if (is_element_in_array(selection, menuOption, arrayMenuLength))
     {
-        arrayOfFunctions[selection]();
+        arrayOfFunctions[selection - 1]();
     }
     else
     {
@@ -138,9 +159,8 @@ void printMenu()
 }
 
 // Function to check if x is in array
-int is_element_in_array(int x, int arr[])
+int is_element_in_array(int x, int arr[], int arrayLength)
 {
-    int arrayLength = sizeof(arr) / sizeof(arr[0]);
     for (int i = 0; i < arrayLength; i++)
     {
         if (arr[i] == x)
@@ -152,149 +172,65 @@ int is_element_in_array(int x, int arr[])
 }
 
 // Function for adjusting available streaming services
-void adjust_s_services(int *available_s)
+void adjust_s_services()
 {
-    print_services(available_s);
-    select_change(available_s);
     system(CLEAR_SCREEN);
-    printMenu();
+    print_services();
+    change_service();
+    system(CLEAR_SCREEN);
 }
 
 // function for printing what is available at the moment
-void print_services(int *available_s)
+void print_services()
 {
     printf("\nCurrently you have the following streaming services available:\n");
 
     // Print available streaming services and whether you have them or not
-    if (available_s[0] == 1)
+    for (int i = 0; i < STREAM_SERVICE_COUNT; i++)
     {
-        printf("0: Active: Netflix\n")
+        if (streamingServices[i].toggle == 1)
+        {
+            printf("%d: \"%s\" is Active\n", i + 1, streamingServices[i].service);
+        }
+        else
+        {
+            printf("%d: \"%s\" is Not Active\n", i + 1, streamingServices[i].service);
+        }
     }
-    else
-    {
-        "0: Not active: Netflix\n"
-    }
-
-    if (available_s[1] == 1)
-    {
-        printf("1: Active: DRTV\n")
-    }
-    else
-    {
-        "1: Not active: DRTV\n"
-    }
-
-    if (available_s[2] == 1)
-    {
-        printf("2: Active: HBO Max\n")
-    }
-    else
-    {
-        "2: Not active: HBO max \n"
-    }
-
-    if (available_s[3] == 1)
-    {
-        printf("3: Active: Disney+\n")
-    }
-    else
-    {
-        "3: Not active: Disney+\n"
-    }
-
-    if (available_s[4] == 1)
-    {
-        printf("4: Active: TV2 Play\n")
-    }
-    else
-    {
-        "4: Not active: TV2 Play\n"
-    }
-
-    if (available_s[5] == 1)
-    {
-        printf("5: Active: SkyShowtime\n")
-    }
-    else
-    {
-        "5: Not active: SkyShowtime\n"
-    }
-
-    if (available_s[6] == 1)
-    {
-        printf("6: Active: Viaplay\n")
-    }
-    else
-    {
-        "6: Not active: Viaplay\n"
-    }
-
-    if (available_s[7] == 1)
-    {
-        printf("7: Active: Film Striben\n")
-    }
-    else
-    {
-        "7: Not active: Film Striben\n"
-    }
-
-    if (available_s[8] == 1)
-    {
-        printf("8: Active: C-More\n")
-    }
-    else
-    {
-        "8: Not active: C-more\n"
-    }
-
-    if (available_s[9] == 1)
-    {
-        printf("9: Active: Amazon Prime\n")
-    }
-    else
-    {
-        "9: Not active: Amazon Prime\n"
-    }
-
-    if (available_s[10] == 1)
-    {
-        printf("10: Active: Rakuten\n")
-    }
-    else
-    {
-        printf("10: Not active: Rakuten\n")
-    }
-
-    int number_of_choice = 0;
 }
 
-void select_change(available_s)
+void change_service()
 {
+    int numberChoice;
     // Ask user which streaming service they want to activate/deactivate
     printf("\nWhich streaming service do you want to activate/deactivate?\n");
     printf("If you dont wanna change any press -1.\n");
-    printf("Enter number:\n")
+    printf("Enter number:\n");
 
-        scanf("%d", &number_of_choice);
+    scanf("%d", &numberChoice);
 
-    if (number_of_choice == -1)
+    if (numberChoice == -1)
     {
-        // to go main menu
-        printMenu();
+        return; // Går tilbage til while loopet
     }
-    else if (number_of_choice >= 0 && number_of_choice <= 10)
+    else if (numberChoice >= 0 && numberChoice <= 11)
     {
+        numberChoice--; // Skal minus med en da arrayet starter på 0 og menuen starter på 1
         // change the value of the streaming service
-
-        // to go main menu
-        printMenu();
+        if (streamingServices[numberChoice].toggle == 1)
+        {
+            streamingServices[numberChoice].toggle = 0;
+        }
+        else
+        {
+            streamingServices[numberChoice].toggle = 1;
+        }
     }
     else
     {
-        printf("Invalid input! We try again\n")
-            // to go main menu
+        printf("Invalid input! We try again\n");
 
-            adjust_s_services(available_s);
+        adjust_s_services();
     }
 }
 
