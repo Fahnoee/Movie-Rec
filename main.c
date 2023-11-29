@@ -1,6 +1,8 @@
 // Program running the best movie recommender in the world
 
-// Including of different liberieys
+// ######################
+// ###### libraries #####
+// ######################
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -64,7 +66,9 @@ struct movie
     struct services services;
 };
 
-// prototyper
+// #######################
+// ###### Prototypes #####
+// #######################
 void welcome();
 void adjust_s_services(int *available_s);
 void print_services(int *available_s);
