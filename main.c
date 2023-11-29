@@ -5,6 +5,59 @@
 #include <stdlib.h>
 #include <math.h>
 
+//Defining constant for better readability
+#define MAX_MOVIES 1000
+
+
+
+// Mangler muligvis nogle genrer
+struct genre{
+    int action;
+    int adventure;
+    int drama;
+    int crime;
+    int romance;
+    int fantasy;
+    int mystery;
+    int music;
+    int sport;
+    int animation;
+    int biography;
+    int history;
+    int sci-fi;
+    int war;
+    int family;
+    int thriller;
+    int horror;
+    int comedy;
+    int western;
+    int musical;
+};
+
+struct services{
+    int netflix;
+    int drtv;
+    int hbo;
+    int disney;
+    int tv2play;
+    int skyshowtime;
+    int filmstriben;
+    int viaplay;
+    int cmore;
+    int amazone_prime;
+    int rakuten;
+};
+
+struct movie{
+    int id;
+    char title[50];
+    int pg;
+    int runtime;
+    struct genre genre;
+    int score;
+    char resume[250];
+    struct services services;
+};
 
 //Structs
 typedef struct {
@@ -19,6 +72,7 @@ void print_services(int * available_s);
 void select_change(available_s);
 void printMenu();
 int is_element_in_array(int x, int arr[]);
+void import_movies(int movie_array[]);
 
 //////////////
 /////MAIN/////
@@ -158,68 +212,8 @@ void select_change(available_s){
 }
 
 
-=======
-#define MAX_MOVIES 1000
 
-// prototyper
-void import_movies(int movie_array[]);
-
-
-// Mangler muligvis nogle genrer
-struct genre{
-    int action;
-    int adventure;
-    int drama;
-    int crime;
-    int romance;
-    int fantasy;
-    int mystery;
-    int music;
-    int sport;
-    int animation;
-    int biography;
-    int history;
-    int sci-fi;
-    int war;
-    int family;
-    int thriller;
-    int horror;
-    int comedy;
-    int western;
-    int musical;
-};
-
-struct services{
-    int netflix;
-    int drtv;
-    int hbo;
-    int disney;
-    int tv2play;
-    int skyshowtime;
-    int filmstriben;
-    int viaplay;
-    int cmore;
-    int amazone_prime;
-    int rakuten;
-};
-
-struct movie{
-    int id;
-    char title[50];
-    int pg;
-    int runtime;
-    struct genre genre;
-    int score;
-    char resume[250];
-    struct services services;
-};
-
-void main(void)
-{
-    ()
-}
-
-run()
+void run()
 {
     movie_array[MAX_MOVIES];
 
@@ -269,19 +263,6 @@ import_genre(FILE *f, int movie_array[]){
 }
 
 import_services(FILE *f, int movie_array[])
-
-
-
-
-
-
-// main menu
-
-
-// datasaet
-
-
-
 
 
 //Function for welcomming the new user
