@@ -12,6 +12,13 @@
 // ###############################
 #define MAX_MOVIES 1000
 
+// Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
+#ifdef _WIN32
+#define CLEAR_SCREEN "cls"
+#else
+#define CLEAR_SCREEN "clear"
+#endif
+
 // ###########################
 // ###### Structs #####
 // ###########################
@@ -65,6 +72,12 @@ struct movie
     char resume[250];
     struct services services;
 };
+
+typedef struct
+{
+    char[50] service;
+    int toggle;
+} availableServices;
 
 // #######################
 // ###### Prototypes #####
@@ -143,7 +156,7 @@ void adjust_s_services(int *available_s)
 {
     print_services(available_s);
     select_change(available_s);
-
+    system(CLEAR_SCREEN);
     printMenu();
 }
 
