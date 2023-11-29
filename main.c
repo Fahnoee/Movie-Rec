@@ -1,23 +1,38 @@
+//Program running the best movie recommender in the world
+
+//Including of different liberieys
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-
-
+//Structs
 typedef struct {
     int available_s[11];
 } Settings;
 
 
 // prototyper
+void welcome();
+void adjust_s_services(int * available_s);
+void print_services(int * available_s);
+void select_change(available_s);
+void printMenu();
+int is_element_in_array(int x, int arr[]);
 
+//////////////
+/////MAIN/////
+//////////////
 void main(void) {
+    welcome();
+
     settings mySettings = {
         .available_s = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} 
     }
+
+
 }
 
-// main menu
+//menu
 void printMenu() {
     // Integer value for selecting menu option
     int selection;
@@ -53,7 +68,16 @@ int is_element_in_array(int x, int arr[]) {
     return 0;  // x not found
 }
 
+
 // Function for adjusting available streaming services
+void adjust_s_services(int * available_s){
+    print_services(available_s)
+    select_change(available_s)
+
+    printMenu();
+}
+
+// function for printing what is available at the moment
 void print_services(int * available_s) {
     printf("\nCurrently you have the following streaming services available:\n");
     
@@ -103,10 +127,13 @@ void print_services(int * available_s) {
     else {"10: Not active: Rakuten\n"}
 
     int number_of_choice = 0;
+}
+
+void select_change(available_s){
     // Ask user which streaming service they want to activate/deactivate
     printf("\nWhich streaming service do you want to activate/deactivate?\n");
     printf("If you dont wanna change any press -1.\n");
-    printf("Enter number:")
+    printf("Enter number:\n")
 
     scanf("%d", &number_of_choice);
     
@@ -131,6 +158,17 @@ void print_services(int * available_s) {
 
 
 
-
-
 // datasaet
+
+
+
+
+//Function for welcomming the new user
+void welcome(){
+    printf("\nHey mate, welcome to this movie recommender\n");
+    printf("\n");
+    printf("\n");
+    printf("\n");
+    printf("\n");
+    printf("\n");
+}
