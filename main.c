@@ -86,7 +86,7 @@ typedef struct
 void welcome();
 void adjust_s_services();
 void print_services();
-void change_service();
+int change_service();
 void printMenu();
 int is_element_in_array(int x, int arr[], int arrayLength);
 void import_movies(int movie_array[]);
@@ -174,10 +174,17 @@ int is_element_in_array(int x, int arr[], int arrayLength)
 // Function for adjusting available streaming services
 void adjust_s_services()
 {
-    system(CLEAR_SCREEN);
-    print_services();
-    change_service();
-    system(CLEAR_SCREEN);
+    while (1)
+    {
+        system(CLEAR_SCREEN);
+        print_services();
+        if (change_service() == 0)
+        {
+            system(CLEAR_SCREEN);
+            break;
+        }
+        system(CLEAR_SCREEN);
+    }
 }
 
 // function for printing what is available at the moment
@@ -199,19 +206,19 @@ void print_services()
     }
 }
 
-void change_service()
+int change_service()
 {
     int numberChoice;
     // Ask user which streaming service they want to activate/deactivate
     printf("\nWhich streaming service do you want to activate/deactivate?\n");
-    printf("If you dont wanna change any press -1.\n");
+    printf("If you dont wanna change any press 0.\n");
     printf("Enter number:\n");
 
     scanf("%d", &numberChoice);
 
-    if (numberChoice == -1)
+    if (numberChoice == 0)
     {
-        return; // Går tilbage til while loopet
+        return 0; // Går tilbage til while loopet
     }
     else if (numberChoice >= 0 && numberChoice <= 11)
     {
@@ -230,7 +237,7 @@ void change_service()
     {
         printf("Invalid input! We try again\n");
 
-        adjust_s_services();
+        return 1;
     }
 }
 
