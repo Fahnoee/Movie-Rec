@@ -95,7 +95,7 @@ int is_element_in_array(int x, int arr[], int arrayLength);
 void quit_function();
 void write_to_save_file(settings * key_value_pair);
 void check_file_opening(FILE *f);
-//void import_movies(int movie_array[]); // Husk lige at tilføj den igen
+void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 
 // ##########################
