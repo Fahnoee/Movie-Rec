@@ -8,6 +8,7 @@
 #include <math.h>
 #include <string.h>
 
+
 // ###############################
 // ###### Constant Variables #####
 // ###############################
@@ -17,7 +18,7 @@
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
 #define CLEAR_SCREEN "cls"
-#else
+#else 
 #define CLEAR_SCREEN "clear"
 #endif
 
@@ -75,8 +76,6 @@ struct movie
     struct services services;
 };
 
-
-//Structs
 typedef struct
 {
     char service[50];
@@ -93,6 +92,7 @@ void print_services();
 int change_service();
 void printMenu();
 int is_element_in_array(int x, int arr[], int arrayLength);
+void quit_function();
 //void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 
@@ -142,7 +142,7 @@ void printMenu()
 {
     // Integer value for selecting menu option
     int selection;
-    void (*arrayOfFunctions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, adjust_s_services};
+    void (*arrayOfFunctions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, quit_function};
     int menuOption[] = {1, 2, 3, 4};
     int arrayMenuLength = 4;
 
@@ -150,7 +150,8 @@ void printMenu()
     printf("== MENU ==\n");
     printf("1: Get a recommendation\n");
     printf("2: Adjust your streaming services\n");
-    printf("3: EXIT\n");
+    printf("3: Change preferences\n");
+    printf("4: EXIT\n");
 
     scanf("%d", &selection);
 
@@ -219,10 +220,10 @@ int change_service()
     scanf("%d", &numberChoice);
 
     if (numberChoice == 0) {
-        return 0; // Går tilbage til while loopet
+        return 0; 
     }
     else if (numberChoice >= 0 && numberChoice <= 11) {
-        numberChoice--; // Skal minus med en da arrayet starter på 0 og menuen starter på 1
+        numberChoice--; // Needs to be 1 less then input due to arrays starting at 0
         // change the value of the streaming service
         if (streamingServices[numberChoice].toggle == 1) {
             streamingServices[numberChoice].toggle = 0;
@@ -238,14 +239,15 @@ int change_service()
         return 1;
     }
 }
-//
-// quit functions
-//
 
-void quit_function(){
-    exit;
-    
-}
+// Function for quiting the program
+void quit_function()
+{
+    system(CLEAR_SCREEN);
+    printf("You have choosen to exit our program, we hope you have a good\n");
+    printf("time with the recommended movie :D\n");
+    exit(EXIT_FAILURE);
+}   
 
 
 // ####################################
