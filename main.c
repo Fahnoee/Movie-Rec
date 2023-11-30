@@ -93,7 +93,7 @@ int change_service();
 void printMenu();
 int is_element_in_array(int x, int arr[], int arrayLength);
 void quit_function();
-//void import_movies(int movie_array[]); // Husk lige at tilføj den igen
+void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 
 // ##########################
