@@ -78,9 +78,9 @@ struct movie
 
 typedef struct
 {
-    char service[50];
-    int toggle;
-} availableServices;
+    char key[50];
+    int value;
+} settings;
 
 
 // #######################
@@ -93,24 +93,26 @@ int change_service();
 void printMenu();
 int is_element_in_array(int x, int arr[], int arrayLength);
 void quit_function();
+void write_to_save_file(settings * key_value_pair);
+void check_file_opening(FILE *f);
 void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 
 // ##########################
 // ###### Global Values #####
 // ##########################
-availableServices streamingServices[11] = {
-    {"Netflix", 0},
-    {"DRTV", 0},
-    {"HBO max", 0},
-    {"Disney+", 0},
-    {"TV2play", 0},
-    {"SkyShowtime", 0},
-    {"Filmstriben", 0},
-    {"Viaplay", 0},
-    {"Cmore", 0},
-    {"Amazone Prime", 0},
-    {"Rakuten", 0}};
+settings streamingServices[STREAM_SERVICE_COUNT] = {
+    {"Netflix", 1},
+    {"DRTV", 1},
+    {"HBO max", 1},
+    {"Disney+", 1},
+    {"TV2play", 1},
+    {"SkyShowtime", 1},
+    {"Filmstriben", 1},
+    {"Viaplay", 1},
+    {"Cmore", 1},
+    {"Amazone Prime", 1},
+    {"Rakuten", 1}};
 
 
 //////////////
@@ -190,6 +192,7 @@ void adjust_s_services()
         }
         system(CLEAR_SCREEN);
     }
+    write_to_save_file(streamingServices);
 }
 
 // Function for printing what is available at the moment
@@ -197,14 +200,12 @@ void print_services()
 {
     printf("\nCurrently you have the following streaming services available:\n");
 
-    // Print available streaming services and whether you have them or not
-
-    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
-        if (streamingServices[i].toggle == 1) {
-            printf("%d: \"%s\" is Active\n", i + 1, streamingServices[i].service);
+    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {      // Print available streaming services and whether you have them or not
+        if (streamingServices[i].value == 1) {
+            printf("%d: \"%s\" is Active\n", i + 1, streamingServices[i].key);
         }
         else {
-            printf("%d: \"%s\" is Not Active\n", i + 1, streamingServices[i].service);
+            printf("%d: \"%s\" is Not Active\n", i + 1, streamingServices[i].key);
         }
     }
 }
@@ -225,11 +226,11 @@ int change_service()
     else if (numberChoice >= 0 && numberChoice <= 11) {
         numberChoice--; // Needs to be 1 less then input due to arrays starting at 0
         // change the value of the streaming service
-        if (streamingServices[numberChoice].toggle == 1) {
-            streamingServices[numberChoice].toggle = 0;
+        if (streamingServices[numberChoice].value == 1) {
+            streamingServices[numberChoice].value = 0;
         }
         else {
-            streamingServices[numberChoice].toggle = 1;
+            streamingServices[numberChoice].value = 1;
         }
     }
     else {
@@ -245,7 +246,8 @@ void quit_function()
 {
     system(CLEAR_SCREEN);
     printf("You have choosen to exit our program, we hope you have a good\n");
-    printf("time with the recommended movie :D\n");
+    printf("time with the recommended movie  :D\n");
+    printf("Your choice of streaming services have been saved \n");
     exit(EXIT_FAILURE);
 }   
 
