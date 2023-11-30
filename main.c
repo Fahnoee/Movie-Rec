@@ -8,6 +8,7 @@
 #include <math.h>
 #include <string.h>
 
+
 // ###############################
 // ###### Constant Variables #####
 // ###############################
@@ -17,7 +18,7 @@
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
 #define CLEAR_SCREEN "cls"
-#else
+#else 
 #define CLEAR_SCREEN "clear"
 #endif
 
@@ -75,8 +76,6 @@ struct movie
     struct services services;
 };
 
-
-//Structs
 typedef struct
 {
     char service[50];
@@ -93,24 +92,26 @@ void print_services();
 int change_service();
 void printMenu();
 int is_element_in_array(int x, int arr[], int arrayLength);
-void import_movies(int movie_array[]);
+void quit_function();
+//void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 
 // ##########################
 // ###### Global Values #####
 // ##########################
 availableServices streamingServices[11] = {
-    {"netflix", 0},
-    {"drtv", 0},
-    {"hbo", 0},
-    {"disney", 0},
-    {"tv2play", 0},
-    {"skyshowtime", 0},
-    {"filmstriben", 0},
-    {"viaplay", 0},
-    {"cmore", 0},
-    {"amazone_prime", 0},
-    {"rakuten", 0}};
+    {"Netflix", 0},
+    {"DRTV", 0},
+    {"HBO max", 0},
+    {"Disney+", 0},
+    {"TV2play", 0},
+    {"SkyShowtime", 0},
+    {"Filmstriben", 0},
+    {"Viaplay", 0},
+    {"Cmore", 0},
+    {"Amazone Prime", 0},
+    {"Rakuten", 0}};
+
 
 //////////////
 /////MAIN/////
@@ -121,8 +122,7 @@ void main(void)
 
     system(CLEAR_SCREEN);
 
-    while (running)
-    {
+    while (running){
         printMenu();
     }
 }
@@ -134,14 +134,15 @@ void welcome()
     printf("\n");
 }
 
-// ########################### // Go from global variable to pointers
+// ########################### 
 // ###### Menu functions #####
 // ###########################
+
 void printMenu()
 {
     // Integer value for selecting menu option
     int selection;
-    void (*arrayOfFunctions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, adjust_s_services};
+    void (*arrayOfFunctions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, quit_function};
     int menuOption[] = {1, 2, 3, 4};
     int arrayMenuLength = 4;
 
@@ -149,16 +150,15 @@ void printMenu()
     printf("== MENU ==\n");
     printf("1: Get a recommendation\n");
     printf("2: Adjust your streaming services\n");
-    printf("3: EXIT\n");
+    printf("3: Change preferences\n");
+    printf("4: EXIT\n");
 
     scanf("%d", &selection);
 
-    if (is_element_in_array(selection, menuOption, arrayMenuLength))
-    {
+    if (is_element_in_array(selection, menuOption, arrayMenuLength)) {
         arrayOfFunctions[selection - 1]();
     }
-    else
-    {
+    else {
         printf("Invalid input!");
     }
 }
@@ -175,16 +175,16 @@ int is_element_in_array(int x, int arr[], int arrayLength)
     }
     return 0; // x not found
 }
-
+//
+//  Service sub menu functions
+//
 // Function for adjusting available streaming services
 void adjust_s_services()
 {
-    while (1)
-    {
+    while(1) {
         system(CLEAR_SCREEN);
         print_services();
-        if (change_service() == 0)
-        {
+        if (change_service() == 0) {
             system(CLEAR_SCREEN);
             break;
         }
@@ -192,25 +192,21 @@ void adjust_s_services()
     }
 }
 
-// function for printing what is available at the moment
+// Function for printing what is available at the moment
 void print_services()
 {
     printf("\nCurrently you have the following streaming services available:\n");
 
     // Print available streaming services and whether you have them or not
 
-    for (int i = 0; i < STREAM_SERVICE_COUNT; i++)
-    {
-        if (streamingServices[i].toggle == 1)
-        {
+    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
+        if (streamingServices[i].toggle == 1) {
             printf("%d: \"%s\" is Active\n", i + 1, streamingServices[i].service);
         }
-        else
-        {
+        else {
             printf("%d: \"%s\" is Not Active\n", i + 1, streamingServices[i].service);
         }
     }
-
 }
 
 int change_service()
@@ -223,31 +219,36 @@ int change_service()
 
     scanf("%d", &numberChoice);
 
-    if (numberChoice == 0)
-    {
-        return 0; // Går tilbage til while loopet
+    if (numberChoice == 0) {
+        return 0; 
     }
-    else if (numberChoice >= 0 && numberChoice <= 11)
-    {
-        numberChoice--; // Skal minus med en da arrayet starter på 0 og menuen starter på 1
+    else if (numberChoice >= 0 && numberChoice <= 11) {
+        numberChoice--; // Needs to be 1 less then input due to arrays starting at 0
         // change the value of the streaming service
-        if (streamingServices[numberChoice].toggle == 1)
-        {
+        if (streamingServices[numberChoice].toggle == 1) {
             streamingServices[numberChoice].toggle = 0;
         }
-        else
-        {
+        else {
             streamingServices[numberChoice].toggle = 1;
         }
     }
-    else
-    {
+    else {
         printf("Invalid input! We try again\n");
 
 
         return 1;
     }
 }
+
+// Function for quiting the program
+void quit_function()
+{
+    system(CLEAR_SCREEN);
+    printf("You have choosen to exit our program, we hope you have a good\n");
+    printf("time with the recommended movie :D\n");
+    exit(EXIT_FAILURE);
+}   
+
 
 // ####################################
 // ###### File handling functions #####
