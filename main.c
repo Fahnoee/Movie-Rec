@@ -109,6 +109,7 @@ void quit_function();
 void write_config(setting * key_value_pair);
 void check_file_opening(FILE *f);
 void read_config();
+int toggle_setting(int offset, int setting);
 //void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 
@@ -241,31 +242,18 @@ void print_services()
 // Function to handle user input and toggle the status of active services
 int change_service()
 {
-    int number_choice;
+    int user_input;
     // Ask user which streaming service they want to activate/deactivate
     printf("\nWhich streaming service do you want to activate/deactivate?\n");
     printf("If you dont wanna change any press 0.\n");
-    printf("Enter number:\n");
+    printf("Enter number:");
 
-    scanf("%d", &number_choice);
-
-    if (number_choice == 0) {
-        return 0; 
-    }
-    else if (number_choice >= 0 && number_choice <= 11) {
-        number_choice--;        // Needs to be 1 less then input due to arrays starting at 0
-                                // change the value of the streaming service
-        if (config[number_choice].value == 1) {
-            config[number_choice].value = 0;
-        }
-        else {
-            config[number_choice].value = 1;
-        }
-    }
-    else {
-        printf("Invalid input! We try again\n");
+    scanf("%d", &user_input);
+    if ((toggle_setting(0, user_input)) == 0) {
+        return 0;
+    } else {
         return 1;
-    }
+    } 
 }
 
 // Function for quiting the program
@@ -276,7 +264,49 @@ void quit_function()
     printf("time with the recommended movie  :D\n");
     printf("Your choice of streaming services have been saved \n");
     exit(EXIT_FAILURE);
-}   
+}  
+/*
+void change_preferences() 
+{
+    int user_input;
+    char settingOptions[100000] = {};
+
+    printf("===== Settings Menu =====\n
+            1. Setting 1\n
+            2. Setting 2\n
+            3. Setting 3\n
+            4. Setting 4\n
+            5. reset your settings\n");
+    printf("Enter number:");
+    scanf("%d", user_input);
+    if ((toggle_setting(11, user_input)) == 0) {
+        return 0;
+    } else {
+        return 1;
+    } 
+    
+}
+*/
+int toggle_setting(int offset, int setting) 
+{
+    if (setting == 0) {
+        return 0; 
+    }
+    else if (setting >= 0 && setting <= 11) {
+        setting = (setting + offset) - 1;        // Needs to be 1 less then input due to arrays starting at 0
+                                                 // change the value of the streaming service
+        if (config[setting].value == 1) {
+            config[setting].value = 0;
+        }
+        else {
+            config[setting].value = 1; 
+        }
+    }
+    else {
+        printf("Invalid input! We try again\n");
+        return 1;
+    }
+}
 
 // ####################################
 // ###### File handling functions #####

@@ -1,0 +1,11 @@
+Netflix=0 
+DRTV=0 
+HBO max=0 
+Disney+=0 
+TV2play=0 
+SkyShowtime=0 
+Filmstriben=1 
+Viaplay=1 
+Cmore=1 
+Amazone Prime=1 
+Rakuten=1 
