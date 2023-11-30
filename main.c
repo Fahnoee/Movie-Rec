@@ -261,8 +261,6 @@ void run()
     import_movies(movie_array);
 }
 
-
-
 void import_movies(struct movie movie_array[])
 {
 
@@ -303,7 +301,8 @@ import_genre(FILE *f, int movie_array[]){
                             "Sci_fi", "War", "Family", "Thriller", "Horror", 
                             "Comedy", "Western","Musical"};
 
-    fscanf(f, "%s, %s, %s", 1, 2, genre_3 );
+    fscanf(f, "%s, %s, %s", 1, 2, 3 );
+    suck a dick
 
     for(int j = 0; i > 3; i++)
     {    
