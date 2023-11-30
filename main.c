@@ -229,7 +229,7 @@ void print_services()
 
     for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {      // Print available streaming services and whether you have them or not
         if (config[i].value == 1) {
-            printf("%2d: %-13s   [x]\n", i + 1, config[i].key); // Gør så [x] og [ ] står på en lige linje
+            printf("%2d: %-13s   [x]\n", i + 1, config[i].key);  // Gør så [x] og [ ] står på en lige linje
         }
         else {
             printf("%2d: %-13s   [ ]\n", i + 1, config[i].key);
@@ -322,6 +322,20 @@ void check_file_opening(FILE *f) {
     }
 }
 
+/* Function for getting a new recommendation */
+void get_new_recommendation(){
+
+    /* kald tidligere recommendation, men tillad ikke de x første/bedste matches at blive vist
+       så den tager måske i+5, i+6, i+7, i+8 osv som valg. */
+
+    printf("You have choosen to get new recommendations\n");
+    printf("Based on your previous genre-settings and choice of streaming\n");
+    printf("platforms, these new options is available: \n");
+
+    /* Print på samme måde som den almindelige recommendation (nok via en func)
+       så der blot vises de nye recommendations */
+
+}
 
 
 
@@ -400,4 +414,4 @@ import_services(FILE *f, int movie_array[])
 
 }
 
- */
+ */ 
