@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 // ###############################
 // ###### Constant Variables #####
@@ -37,7 +38,7 @@ struct genre // Mangler muligvis nogle genrer
     int animation;
     int biography;
     int history;
-    int scifi;
+    int sci_fi;
     int war;
     int family;
     int thriller;
@@ -74,11 +75,14 @@ struct movie
     struct services services;
 };
 
+
+//Structs
 typedef struct
 {
     char service[50];
     int toggle;
 } availableServices;
+
 
 // #######################
 // ###### Prototypes #####
@@ -90,6 +94,7 @@ int change_service();
 void printMenu();
 int is_element_in_array(int x, int arr[], int arrayLength);
 void import_movies(int movie_array[]);
+
 
 // ##########################
 // ###### Global Values #####
@@ -193,6 +198,7 @@ void print_services()
     printf("\nCurrently you have the following streaming services available:\n");
 
     // Print available streaming services and whether you have them or not
+
     for (int i = 0; i < STREAM_SERVICE_COUNT; i++)
     {
         if (streamingServices[i].toggle == 1)
@@ -204,6 +210,7 @@ void print_services()
             printf("%d: \"%s\" is Not Active\n", i + 1, streamingServices[i].service);
         }
     }
+
 }
 
 int change_service()
@@ -237,6 +244,7 @@ int change_service()
     {
         printf("Invalid input! We try again\n");
 
+
         return 1;
     }
 }
@@ -245,15 +253,17 @@ int change_service()
 // ###### File handling functions #####
 // ####################################
 
-/*
+
 void run()
 {
-    movie_array[MAX_MOVIES];
+    struct movie movie_array[MAX_MOVIES];
 
     import_movies(movie_array);
 }
 
-void import_movies(int movie_array[])
+
+
+void import_movies(struct movie movie_array[])
 {
 
     FILE *f = fopen("movies.txt", "r");
@@ -263,38 +273,58 @@ void import_movies(int movie_array[])
         exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < MAX_MOVIES; i++)
+
+    for(int i = 0; i < MAX_MOVIES; i++)
     {
 
-        fscanf(f, "%d;%s;%d;%d;%struct;%d;%s;%struct", &movie_array.);
-    }
-
-    f(close);
-}
-
-match import_matches(FILE *f, movie_array[])
-{
-
-    for (int i = 0; i < MAX_GAMES; i++)
-    {
-        fscanf(f, "%d;%s;%d;%d;",
-               &movie[i].id,
-               movie[i].title,
-               &movie[i].pg,
-               &movie[i].runtime);
-
-        % struct
-
-            fscanf(f, ";%d;%s;",
-                   &movie[i].score, movie[i].resume);
-
-        % struct
+        fscanf(f, "%d;%s;%d;%d;",  
+                &movie_array[i].id,
+                movie_array[i].title,
+                &movie_array[i].pg,
+                &movie_array[i].runtime); 
+                
+        //import genre struct
+        
+        fscanf(f, ";%d;%s;", 
+        &movie_array[i].score, movie_array[i].resume);
+    
+        //import service struct
     }
 }
 
 import_genre(FILE *f, int movie_array[]){
-    fscanf(f, % s)}
+
+    char *1[10];
+    char *2[10];
+    char *3[10];
+    char genre_array[] = { "Action", "Adventure","Drama", "Crime", 
+                            "Romance", "Fantasy", "Mystery", "Music", 
+                            "Sport", "Animation", "Biography", "History", 
+                            "Sci_fi", "War", "Family", "Thriller", "Horror", 
+                            "Comedy", "Western","Musical"};
+
+    fscanf(f, "%s, %s, %s", 1, 2, genre_3 );
+
+    for(int j = 0; i > 3; i++)
+    {    
+        for(int i = 0; i < (sizeof(genre_array))/sizeof(genre_array[0]); i++)
+        {
+            
+            if(strcmp(j, genre_array[i]) = 0)
+            {
+                genre.action
+            }
+        }
+    }
+
+
+
+
+}
+
 
 import_services(FILE *f, int movie_array[])
+{
 
-*/
+}
+
