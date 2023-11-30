@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 //Defining constant for better readability
 #define MAX_MOVIES 1000
@@ -236,6 +237,7 @@ void import_movies(struct movie movie_array[])
 
     for(int i = 0; i < MAX_MOVIES; i++)
     {
+
         fscanf(f, "%d;%s;%d;%d;",  
                 &movie_array[i].id,
                 movie_array[i].title,
@@ -252,11 +254,30 @@ void import_movies(struct movie movie_array[])
 }
 
 import_genre(FILE *f, int movie_array[]){
-    char *genre_1[10];
-    char *genre_2[10];
-    char *genre_3[10];
+    char *1[10];
+    char *2[10];
+    char *3[10];
+    char genre_array[] = { "Action", "Adventure","Drama", "Crime", 
+                            "Romance", "Fantasy", "Mystery", "Music", 
+                            "Sport", "Animation", "Biography", "History", 
+                            "Sci_fi", "War", "Family", "Thriller", "Horror", 
+                            "Comedy", "Western","Musical"};
 
-    fscanf(f, "%s, %s, %s", genre_1, genre_2, genre_3 );
+    fscanf(f, "%s, %s, %s", 1, 2, genre_3 );
+
+    for(int j = 0; i > 3; i++)
+    {    
+        for(int i = 0; i < (sizeof(genre_array))/sizeof(genre_array[0]); i++)
+        {
+            
+            if(strcmp(j, genre_array[i]) = 0)
+            {
+                genre.action
+            }
+        }
+    }
+
+
 
 
 }
