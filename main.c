@@ -95,7 +95,7 @@ int is_element_in_array(int x, int arr[], int array_length);
 void quit_function();
 void write_config(setting * key_value_pair);
 void check_file_opening(FILE *f);
-void read_config(setting* key_value_pair);
+void read_config();
 //void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 
@@ -266,7 +266,7 @@ void quit_function()
 // ###### File handling functions #####
 // ####################################
 
-
+//Function for creating a config, used to save available streaming servives
 void write_config(setting* key_value_pair)
 {
     FILE *config_file;
@@ -280,22 +280,26 @@ void write_config(setting* key_value_pair)
     fclose(config_file);
 }
 
-void read_config(setting* key_value_pair)
+//Function for reading a config, used to save available streaming servives
+void read_config()
 {
-    FILE *config;
-    config = fopen("conf.txt", "r");
-    check_file_opening(config);
+    FILE *file;
+    file = fopen("conf.txt", "r");
+    if (file == NULL) {                     //In case of first opening of program the config will be missing
+        write_config(config);               //Here a config is writting from the global variable.
+
+        file = fopen("conf.txt", "r");      //Re-open the file after creating it
+        check_file_opening(file);
+    }
     
     for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
-        fscanf(config, "%[^=]=%d ", key_value_pair[i].key, &key_value_pair[i].value);
+        fscanf(file, "%[^=]=%d ", config[i].key, &config[i].value);
     }
-    fclose(config);
-
+    fclose(file);
 }
 
-/* Function for  testing if a file is read correctly */
-void check_file_opening(FILE *f)
-{
+/* Function for testing if a file is read correctly */
+void check_file_opening(FILE *f) {
     if (f == NULL) {
         printf("There has been a fail in loading your file, now exiting...\n");
         exit(EXIT_FAILURE);
@@ -306,7 +310,7 @@ void check_file_opening(FILE *f)
 
 
 
-
+/* 
 void run()
 {
     struct movie movie_array[MAX_MOVIES];
@@ -381,3 +385,4 @@ import_services(FILE *f, int movie_array[])
 
 }
 
+ */
