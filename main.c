@@ -1,4 +1,17 @@
-// Program running the best movie recommender in the world
+/**
+ * This is the main C program file for the best movie recommender in the world.
+ * It contains various functions for managing streaming services, adjusting preferences, and providing movie recommendations.
+ * The program uses structs to represent genres, streaming services, and movies.
+ * It also includes file handling functions for reading and writing configuration files.
+ */
+
+/*
+ * Bugs
+ * Når input er andet end det forventede så fucker programmet
+ *
+ *
+*/
+
 
 // ######################
 // ###### libraries #####
@@ -116,16 +129,13 @@ setting config[STREAM_SERVICE_COUNT] = {
     {"Amazone Prime", 1},
     {"Rakuten", 1}
     // Other settings
-    
     };
-
-
 
 
 //////////////
 /////MAIN/////
 //////////////
-void main(void)
+int main(void)
 {
     welcome();
     
@@ -136,9 +146,11 @@ void main(void)
     while (running){
         printMenu();
     }
+    
+    return 0;
 }
 
-// Function for welcomming the new user
+// Function for welcomming the new user and loading up their config file
 void welcome()
 {
     read_config(config);
@@ -150,13 +162,16 @@ void welcome()
 // ###### Menu functions #####
 // ###########################
 
+// Function that creats a main menu and handles it trough other functions
 void printMenu()
 {
     // Integer value for selecting menu option
     int selection;
-    void (*array_of_functions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, quit_function};
     int menu_option[] = {1, 2, 3, 4};
     int array_menu_length = 4;
+
+    // Array containing the functions that will be called from the main menu
+    void (*array_of_functions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, quit_function};
 
     // Print menu options
     printf("== MENU ==\n");
@@ -167,6 +182,7 @@ void printMenu()
 
     scanf("%d", &selection);
 
+    // 
     if (is_element_in_array(selection, menu_option, array_menu_length)) {
         array_of_functions[selection - 1]();
     }
@@ -178,18 +194,19 @@ void printMenu()
 // Function to check if x is in array
 int is_element_in_array(int x, int arr[], int array_length)
 {
-    for (int i = 0; i < array_length; i++)
-    {
-        if (arr[i] == x)
-        {
+    for (int i = 0; i < array_length; i++) {
+        if (arr[i] == x) {
             return 1; // x found
         }
     }
     return 0; // x not found
 }
+
+
 //
 //  Service sub menu functions
 //
+
 // Function for adjusting available streaming services
 void adjust_s_services()
 {
@@ -212,14 +229,16 @@ void print_services()
 
     for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {      // Print available streaming services and whether you have them or not
         if (config[i].value == 1) {
-            printf("%d: \"%s\" is Active\n", i + 1, config[i].key);
+            printf("%2d: %-13s   [x]\n", i + 1, config[i].key); // Gør så [x] og [ ] står på en lige linje
         }
         else {
-            printf("%d: \"%s\" is Not Active\n", i + 1, config[i].key);
+            printf("%2d: %-13s   [ ]\n", i + 1, config[i].key);
         }
     }
-}
+}   
 
+
+// Function to handle user input and toggle the status of active services
 int change_service()
 {
     int number_choice;
@@ -234,8 +253,8 @@ int change_service()
         return 0; 
     }
     else if (number_choice >= 0 && number_choice <= 11) {
-        number_choice--; // Needs to be 1 less then input due to arrays starting at 0
-        // change the value of the streaming service
+        number_choice--;        // Needs to be 1 less then input due to arrays starting at 0
+                                // change the value of the streaming service
         if (config[number_choice].value == 1) {
             config[number_choice].value = 0;
         }
@@ -245,8 +264,6 @@ int change_service()
     }
     else {
         printf("Invalid input! We try again\n");
-
-
         return 1;
     }
 }
@@ -261,7 +278,6 @@ void quit_function()
     exit(EXIT_FAILURE);
 }   
 
-
 // ####################################
 // ###### File handling functions #####
 // ####################################
@@ -269,15 +285,15 @@ void quit_function()
 //Function for creating a config, used to save available streaming servives
 void write_config(setting* key_value_pair)
 {
-    FILE *config_file;
-    config_file = fopen("conf.txt", "w");
-    check_file_opening(config_file);
+    FILE *config_file;                              //Creates pointer to file
+    config_file = fopen("conf.txt", "w");           //Opens file
+    check_file_opening(config_file);                //Checks if it is read correctly
     
-    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
+    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {        //Forloop that writes the config file
         fprintf(config_file, "%s=%d \n", key_value_pair[i].key, key_value_pair[i].value);
     }
 
-    fclose(config_file);
+    fclose(config_file);                            //Close file
 }
 
 //Function for reading a config, used to save available streaming servives
@@ -305,7 +321,6 @@ void check_file_opening(FILE *f) {
         exit(EXIT_FAILURE);
     }
 }
-
 
 
 
