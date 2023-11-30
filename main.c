@@ -22,9 +22,9 @@
 #define CLEAR_SCREEN "clear"
 #endif
 
-// ###########################
+// ####################
 // ###### Structs #####
-// ###########################
+// ####################
 struct genre // Mangler muligvis nogle genrer
 {
     int action;
@@ -80,7 +80,7 @@ typedef struct
 {
     char key[50];
     int value;
-} settings;
+} setting;
 
 
 // #######################
@@ -91,17 +91,19 @@ void adjust_s_services();
 void print_services();
 int change_service();
 void printMenu();
-int is_element_in_array(int x, int arr[], int arrayLength);
+int is_element_in_array(int x, int arr[], int array_length);
 void quit_function();
-void write_to_save_file(settings * key_value_pair);
+void write_config(setting * key_value_pair);
 void check_file_opening(FILE *f);
-void import_movies(int movie_array[]); // Husk lige at tilføj den igen
+void read_config(setting* key_value_pair);
+//void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 
 // ##########################
 // ###### Global Values #####
 // ##########################
-settings streamingServices[STREAM_SERVICE_COUNT] = {
+setting config[STREAM_SERVICE_COUNT] = {
+    // Streaming service's
     {"Netflix", 1},
     {"DRTV", 1},
     {"HBO max", 1},
@@ -112,7 +114,12 @@ settings streamingServices[STREAM_SERVICE_COUNT] = {
     {"Viaplay", 1},
     {"Cmore", 1},
     {"Amazone Prime", 1},
-    {"Rakuten", 1}};
+    {"Rakuten", 1}
+    // Other settings
+    
+    };
+
+
 
 
 //////////////
@@ -120,6 +127,8 @@ settings streamingServices[STREAM_SERVICE_COUNT] = {
 //////////////
 void main(void)
 {
+    welcome();
+    
     int running = 1;
 
     system(CLEAR_SCREEN);
@@ -132,6 +141,7 @@ void main(void)
 // Function for welcomming the new user
 void welcome()
 {
+    read_config(config);
     printf("\nHey mate, welcome to this movie recommender\n");
     printf("\n");
 }
@@ -144,9 +154,9 @@ void printMenu()
 {
     // Integer value for selecting menu option
     int selection;
-    void (*arrayOfFunctions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, quit_function};
-    int menuOption[] = {1, 2, 3, 4};
-    int arrayMenuLength = 4;
+    void (*array_of_functions[])() = {adjust_s_services, adjust_s_services, adjust_s_services, quit_function};
+    int menu_option[] = {1, 2, 3, 4};
+    int array_menu_length = 4;
 
     // Print menu options
     printf("== MENU ==\n");
@@ -157,8 +167,8 @@ void printMenu()
 
     scanf("%d", &selection);
 
-    if (is_element_in_array(selection, menuOption, arrayMenuLength)) {
-        arrayOfFunctions[selection - 1]();
+    if (is_element_in_array(selection, menu_option, array_menu_length)) {
+        array_of_functions[selection - 1]();
     }
     else {
         printf("Invalid input!");
@@ -166,9 +176,9 @@ void printMenu()
 }
 
 // Function to check if x is in array
-int is_element_in_array(int x, int arr[], int arrayLength)
+int is_element_in_array(int x, int arr[], int array_length)
 {
-    for (int i = 0; i < arrayLength; i++)
+    for (int i = 0; i < array_length; i++)
     {
         if (arr[i] == x)
         {
@@ -192,7 +202,7 @@ void adjust_s_services()
         }
         system(CLEAR_SCREEN);
     }
-    write_to_save_file(streamingServices);
+    write_config(config);
 }
 
 // Function for printing what is available at the moment
@@ -201,36 +211,36 @@ void print_services()
     printf("\nCurrently you have the following streaming services available:\n");
 
     for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {      // Print available streaming services and whether you have them or not
-        if (streamingServices[i].value == 1) {
-            printf("%d: \"%s\" is Active\n", i + 1, streamingServices[i].key);
+        if (config[i].value == 1) {
+            printf("%d: \"%s\" is Active\n", i + 1, config[i].key);
         }
         else {
-            printf("%d: \"%s\" is Not Active\n", i + 1, streamingServices[i].key);
+            printf("%d: \"%s\" is Not Active\n", i + 1, config[i].key);
         }
     }
 }
 
 int change_service()
 {
-    int numberChoice;
+    int number_choice;
     // Ask user which streaming service they want to activate/deactivate
     printf("\nWhich streaming service do you want to activate/deactivate?\n");
     printf("If you dont wanna change any press 0.\n");
     printf("Enter number:\n");
 
-    scanf("%d", &numberChoice);
+    scanf("%d", &number_choice);
 
-    if (numberChoice == 0) {
+    if (number_choice == 0) {
         return 0; 
     }
-    else if (numberChoice >= 0 && numberChoice <= 11) {
-        numberChoice--; // Needs to be 1 less then input due to arrays starting at 0
+    else if (number_choice >= 0 && number_choice <= 11) {
+        number_choice--; // Needs to be 1 less then input due to arrays starting at 0
         // change the value of the streaming service
-        if (streamingServices[numberChoice].value == 1) {
-            streamingServices[numberChoice].value = 0;
+        if (config[number_choice].value == 1) {
+            config[number_choice].value = 0;
         }
         else {
-            streamingServices[numberChoice].value = 1;
+            config[number_choice].value = 1;
         }
     }
     else {
@@ -255,6 +265,46 @@ void quit_function()
 // ####################################
 // ###### File handling functions #####
 // ####################################
+
+
+void write_config(setting* key_value_pair)
+{
+    FILE *config_file;
+    config_file = fopen("conf.txt", "w");
+    check_file_opening(config_file);
+    
+    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
+        fprintf(config_file, "%s=%d \n", key_value_pair[i].key, key_value_pair[i].value);
+    }
+
+    fclose(config_file);
+}
+
+void read_config(setting* key_value_pair)
+{
+    FILE *config;
+    config = fopen("conf.txt", "r");
+    check_file_opening(config);
+    
+    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
+        fscanf(config, "%[^=]=%d ", key_value_pair[i].key, &key_value_pair[i].value);
+    }
+    fclose(config);
+
+}
+
+/* Function for  testing if a file is read correctly */
+void check_file_opening(FILE *f)
+{
+    if (f == NULL) {
+        printf("There has been a fail in loading your file, now exiting...\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+
+
 
 
 void run()
