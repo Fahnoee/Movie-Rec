@@ -215,8 +215,8 @@ void adjust_s_services()
 {
     while (1) {
         system(CLEAR_SCREEN);
-        print_services(0, "Currently you have the following streaming services available");
-        if (print_changeable_menu() == 0) {
+        print_config_items(0, "Currently you have the following streaming services available");
+        if (change_service() == 0) {
             system(CLEAR_SCREEN);
             break;
         }
