@@ -211,33 +211,6 @@ int is_element_in_array(int x, int arr[], int array_length)
 //  Service sub menu functions
 //
 
-// Function for adjusting available streaming services
-void adjust_s_services()
-{
-    while (1) {
-        system(CLEAR_SCREEN);
-        print_config_items(0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT);
-        if (change_service() == 0) {
-            system(CLEAR_SCREEN);
-            break;
-        }
-        system(CLEAR_SCREEN);
-    }
-    write_config(config);
-}
-
-// Function for printing what is available at the moment
-void print_config_items(int offset, const char* header, int print_array_length) {
-    printf("\n%s:\n", header);
-
-    for (int i = 0; i < print_array_length; i++) {
-        if (config[i + offset].value == 1) {
-            printf("%3d: %-13s   [x]\n", i + 1, config[i + offset].key);
-        } else {
-            printf("%3d: %-13s   [ ]\n", i + 1, config[i + offset].key);
-        }
-    }
-}
 
 
 // Function to handle user input and toggle the status of active services
@@ -256,6 +229,21 @@ int change_service()
     else {
         return 1;
     }
+}
+
+// Function for adjusting available streaming services
+void adjust_s_services()
+{
+    while (1) {
+        system(CLEAR_SCREEN);
+        print_config_items(0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT);
+        if (change_service() == 0) {
+            system(CLEAR_SCREEN);
+            break;
+        }
+        system(CLEAR_SCREEN);
+    }
+    write_config(config);
 }
 
 // Function for quiting the program
@@ -291,6 +279,19 @@ void change_preferences() {
     }
 }
 
+// Function for printing what is available at the moment
+void print_config_items(int offset, const char* header, int print_array_length) {
+    printf("\n%s:\n", header);
+
+    for (int i = 0; i < print_array_length; i++) {
+        if (config[i + offset].value == 1) {
+            printf("%3d: %-13s   [x]\n", i + 1, config[i + offset].key);
+        } else {
+            printf("%3d: %-13s   [ ]\n", i + 1, config[i + offset].key);
+        }
+    }
+}
+// Toggles a value in the config array of structs
 int toggle_setting(int offset, int setting)
 {
     if (setting == 0) {
