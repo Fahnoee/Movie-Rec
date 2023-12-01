@@ -320,7 +320,7 @@ void write_config(setting *key_value_pair)
     config_file = fopen("conf.txt", "w"); // Opens file
     check_file_opening(config_file);      // Checks if it is read correctly
 
-    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) { // Forloop that writes the config file
+    for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT); i++) { // Forloop that writes the config file
         fprintf(config_file, "%s=%d \n", key_value_pair[i].key, key_value_pair[i].value);
     }
 
@@ -339,7 +339,7 @@ void read_config()
         check_file_opening(file);
     }
 
-    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
+    for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT); i++) {
         fscanf(file, "%[^=]=%d ", config[i].key, &config[i].value);
     }
     fclose(file);
