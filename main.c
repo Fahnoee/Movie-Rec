@@ -5,6 +5,13 @@
  * It also includes file handling functions for reading and writing configuration files.
  */
 
+/*  TODO list
+ *  - Maybe a struct that takes the settings so you could parse it into functions.
+ *
+ *
+*/
+
+
 /*
  * Bugs
  * Når input er andet end det forventede så fucker programmet
