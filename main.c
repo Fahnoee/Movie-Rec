@@ -108,7 +108,8 @@ void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
 void read_config();
 int toggle_setting(int offset, int setting);
-void change_preferences();
+void print_config_items(int offset, const char* header);
+
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 // ##########################
@@ -215,7 +216,7 @@ void adjust_s_services()
     while (1) {
         system(CLEAR_SCREEN);
         print_services(0, "Currently you have the following streaming services available");
-        if (change_service() == 0) {
+        if (print_changeable_menu() == 0) {
             system(CLEAR_SCREEN);
             break;
         }
@@ -225,7 +226,7 @@ void adjust_s_services()
 }
 
 // Function for printing what is available at the moment
-void print_services(int offset, const char* header) {
+void print_config_items(int offset, const char* header) {
     printf("\n%s:\n", header);
 
     for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
@@ -271,14 +272,7 @@ void change_preferences() {
     int setting_offset = 11;
 
     while (1) {
-        printf("===== Settings Menu =====\n");
-        for (int i = 0; i < SETTING_COUNT; i++) {
-            if (config[i + setting_offset].value == 1) {
-                printf("%3d: %-20s   [x]\n", i + 1, config[i + setting_offset].key);
-            } else {
-                printf("%3d: %-20s   [ ]\n", i + 1, config[i + setting_offset].key);
-            }
-        }
+        print_config_items(setting_offset, "===== Settings Menu =====");
 
         printf("Enter number:");
         scanf("%d", &user_input); // Fix: use &user_input to get the address of the variable
