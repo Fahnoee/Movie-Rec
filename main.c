@@ -22,7 +22,7 @@ struct genre{
     int animation;
     int biography;
     int history;
-    int sci-fi;
+    int scifi;
     int war;
     int family;
     int thriller;
@@ -98,7 +98,7 @@ match import_matches(FILE *f, movie_array[])
                 &movie[i].pg,
                 &movie[i].runtime); 
                 
-        %struct
+        fscanf(f, "%d;", &movie[i].genre.
         
         fscanf(f, ";%d;%s;", 
         &movie[i].score, movie[i].resume);
