@@ -1,6 +1,6 @@
 Netflix=1 
-DRTV=1 
-HBO max=1 
+DRTV=0 
+HBO max=0 
 Disney+=1 
 TV2play=1 
 SkyShowtime=1 
@@ -9,7 +9,7 @@ Viaplay=1
 Cmore=1 
 Amazone Prime=1 
 Rakuten=1 
-Setting 1=0 
+Setting 1=1 
 Setting 2=0 
 Setting 3=1 
 Setting 4=1 

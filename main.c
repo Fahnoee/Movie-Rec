@@ -104,18 +104,16 @@ typedef struct
 // #######################
 // ###### Prototypes #####
 // #######################
-void welcome();
-void adjust_s_services();
-void print_services();
-int change_service();
-void printMenu();
+void welcome(setting * config);
+void adjust_s_services(setting * config);
+void printMenu(setting * config);
 int is_element_in_array(int x, int arr[], int array_length);
 void quit_function();
 void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
 void read_config();
-int toggle_setting(int offset, int setting);
-void print_config_items(int offset, const char* header, int print_array_length);
+int toggle_setting(setting * config, int offset, int setting);
+void print_config_items(setting * config, int offset, const char* header, int print_array_length);
 void change_preferences();
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
@@ -123,47 +121,48 @@ void change_preferences();
 // ##########################
 // ###### Global Values #####
 // ##########################
-setting config[STREAM_SERVICE_COUNT + SETTING_COUNT] = {
-    // Streaming service's
-    {"Netflix", 1},
-    {"DRTV", 1},
-    {"HBO max", 1},
-    {"Disney+", 1},
-    {"TV2play", 1},
-    {"SkyShowtime", 1},
-    {"Filmstriben", 1},
-    {"Viaplay", 1},
-    {"Cmore", 1},
-    {"Amazone Prime", 1},
-    {"Rakuten", 1},
-    // Other settings
-    {"Setting 1", 1},
-    {"Setting 2", 1},
-    {"Setting 3", 1},
-    {"Setting 4", 1},
-    
-};
+
 
 //////////////
 /////MAIN/////
 //////////////
 int main(void)
 {
-    welcome();
+    setting config[STREAM_SERVICE_COUNT + SETTING_COUNT] = {
+        // Streaming service's
+        {"Netflix", 1},
+        {"DRTV", 1},
+        {"HBO max", 1},
+        {"Disney+", 1},
+        {"TV2play", 1},
+        {"SkyShowtime", 1},
+        {"Filmstriben", 1},
+        {"Viaplay", 1},
+        {"Cmore", 1},
+        {"Amazone Prime", 1},
+        {"Rakuten", 1},
+        // Other settings
+        {"Setting 1", 1},
+        {"Setting 2", 1},
+        {"Setting 3", 1},
+        {"Setting 4", 1},
+    };
+
+    welcome(config);
 
     int running = 1;
 
     system(CLEAR_SCREEN);
 
     while (running) {
-        printMenu();
+        printMenu(config);
     }
 
     return 0;
 }
 
 // Function for welcomming the new user and loading up their config file
-void welcome()
+void welcome(setting * config)
 {
     read_config(config);
     printf("\nHey mate, welcome to this movie recommender\n");
@@ -175,7 +174,7 @@ void welcome()
 // ###########################
 
 // Function that creats a main menu and handles it trough other functions
-void printMenu()
+void printMenu(setting * config)
 {
     // Integer value for selecting menu option
     int selection;
@@ -196,7 +195,7 @@ void printMenu()
 
     //
     if (is_element_in_array(selection, menu_option, array_menu_length)) {
-        array_of_functions[selection - 1]();
+        array_of_functions[selection - 1](config);
     }
     else {
         printf("Invalid input!");
@@ -219,12 +218,12 @@ int is_element_in_array(int x, int arr[], int array_length)
 //
 
 // Function to handle user input and toggle the status of active services
-void adjust_s_services() {
+void adjust_s_services(setting * config) {
     int user_input;
 
     while (1) {
         system(CLEAR_SCREEN);
-        print_config_items(0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT);
+        print_config_items(config, 0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT);
 
         // Ask the user which streaming service they want to activate/deactivate
         printf("\nWhich streaming service do you want to activate/deactivate?\n");
@@ -234,7 +233,7 @@ void adjust_s_services() {
         scanf("%d", &user_input);
 
         // Toggle the setting and break the loop if the result is 0
-        if (toggle_setting(0, user_input) == 0) {
+        if (toggle_setting(config, 0, user_input) == 0) {
             system(CLEAR_SCREEN);
             break;
         }
@@ -254,18 +253,18 @@ void quit_function()
 }
 
 // Change preferences menu printing and toggling
-void change_preferences() {
+void change_preferences(setting * config) {
     int user_input;
     int setting_offset = STREAM_SERVICE_COUNT;
     
     while (1) {
         system(CLEAR_SCREEN);
-        print_config_items(setting_offset, "===== Settings Menu =====\n Write 0 to exit menu", SETTING_COUNT);
+        print_config_items(config , setting_offset, "===== Settings Menu =====\n Write 0 to exit menu", SETTING_COUNT);
 
         printf("Enter number:");
         scanf("%d", &user_input); 
 
-        if (toggle_setting(setting_offset, user_input) == 0) {
+        if (toggle_setting(config, setting_offset, user_input) == 0) {
             printf("Exiting setting s menu.\n");
             system(CLEAR_SCREEN);
             break;
@@ -278,7 +277,7 @@ void change_preferences() {
 }
 
 // Function for printing what is available at the moment
-void print_config_items(int offset, const char* header, int print_array_length) {
+void print_config_items(setting * config, int offset, const char* header, int print_array_length) {
     printf("\n%s:\n", header);
 
     for (int i = 0; i < print_array_length; i++) {
@@ -290,7 +289,7 @@ void print_config_items(int offset, const char* header, int print_array_length) 
     }
 }
 // Toggles a value in the config array of structs
-int toggle_setting(int offset, int setting)
+int toggle_setting(setting * config, int offset, int setting)
 {
     if (setting == 0) {
         return 0;
@@ -332,7 +331,7 @@ void write_config(setting *key_value_pair)
 }
 
 // Function for reading a config, used to save available streaming servives
-void read_config()
+void read_config(setting * config)
 {
     FILE *file;
     file = fopen("conf.txt", "r");
