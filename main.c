@@ -25,7 +25,7 @@
 // ###############################
 #define MAX_MOVIES 1000
 #define STREAM_SERVICE_COUNT 11
-#define SETTING_COUNT 5
+#define SETTING_COUNT 4
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -108,7 +108,8 @@ void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
 void read_config();
 int toggle_setting(int offset, int setting);
-void print_config_items(int offset, const char* header);
+void print_config_items(int offset, const char* header, int print_array_length);
+void change_preferences();
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
@@ -215,7 +216,7 @@ void adjust_s_services()
 {
     while (1) {
         system(CLEAR_SCREEN);
-        print_config_items(0, "Currently you have the following streaming services available");
+        print_config_items(0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT);
         if (change_service() == 0) {
             system(CLEAR_SCREEN);
             break;
@@ -226,10 +227,10 @@ void adjust_s_services()
 }
 
 // Function for printing what is available at the moment
-void print_config_items(int offset, const char* header) {
+void print_config_items(int offset, const char* header, int print_array_length) {
     printf("\n%s:\n", header);
 
-    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
+    for (int i = 0; i < print_array_length; i++) {
         if (config[i + offset].value == 1) {
             printf("%3d: %-13s   [x]\n", i + 1, config[i + offset].key);
         } else {
@@ -269,22 +270,24 @@ void quit_function()
 
 void change_preferences() {
     int user_input;
-    int setting_offset = 11;
+    int setting_offset = STREAM_SERVICE_COUNT;
+    
 
     while (1) {
-        print_config_items(setting_offset, "===== Settings Menu =====");
+        system(CLEAR_SCREEN);
+        print_config_items(setting_offset, "===== Settings Menu =====\n Write 0 to exit menu", SETTING_COUNT);
 
         printf("Enter number:");
         scanf("%d", &user_input); // Fix: use &user_input to get the address of the variable
 
-        switch (toggle_setting(setting_offset, user_input)) {
-            case 0:
-                printf("Exiting settings menu.\n");
-                return;
-            default:
-                // Handle other cases if needed
-                break;
+        if (toggle_setting(setting_offset, user_input) == 0) {
+            printf("Exiting settings menu.\n");
+            system(CLEAR_SCREEN);
+            return;
+        } else if (user_input == (SETTING_COUNT + 1)) {
+            // Run reset setting function here
         }
+        
     }
 }
 
