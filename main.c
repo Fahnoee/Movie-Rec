@@ -214,35 +214,27 @@ int is_element_in_array(int x, int arr[], int array_length)
 
 
 // Function to handle user input and toggle the status of active services
-int change_service()
-{
+void adjust_s_services() {
     int user_input;
-    // Ask user which streaming service they want to activate/deactivate
-    printf("\nWhich streaming service do you want to activate/deactivate?\n");
-    printf("If you dont wanna change any press 0.\n");
-    printf("Enter number:");
 
-    scanf("%d", &user_input);
-    if ((toggle_setting(0, user_input)) == 0) {
-        return 0;
-    }
-    else {
-        return 1;
-    }
-}
-
-// Function for adjusting available streaming services
-void adjust_s_services()
-{
     while (1) {
         system(CLEAR_SCREEN);
         print_config_items(0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT);
-        if (change_service() == 0) {
+
+        // Ask the user which streaming service they want to activate/deactivate
+        printf("\nWhich streaming service do you want to activate/deactivate?\n");
+        printf("If you don't want to change any, press 0.\n");
+        printf("Enter number: ");
+
+        scanf("%d", &user_input);
+
+        // Toggle the setting and break the loop if the result is 0
+        if (toggle_setting(0, user_input) == 0) {
             system(CLEAR_SCREEN);
             break;
         }
-        system(CLEAR_SCREEN);
     }
+
     write_config(config);
 }
 
@@ -256,6 +248,7 @@ void quit_function()
     exit(EXIT_FAILURE);
 }
 
+// Change preferences menu printing and toggling
 void change_preferences() {
     int user_input;
     int setting_offset = STREAM_SERVICE_COUNT;
@@ -269,14 +262,15 @@ void change_preferences() {
         scanf("%d", &user_input); // Fix: use &user_input to get the address of the variable
 
         if (toggle_setting(setting_offset, user_input) == 0) {
-            printf("Exiting settings menu.\n");
+            printf("Exiting setting s menu.\n");
             system(CLEAR_SCREEN);
-            return;
+            break;
         } else if (user_input == (SETTING_COUNT + 1)) {
             // Run reset setting function here
         }
         
     }
+    write_config(config);
 }
 
 // Function for printing what is available at the moment
