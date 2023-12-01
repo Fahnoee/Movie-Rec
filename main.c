@@ -211,8 +211,6 @@ int is_element_in_array(int x, int arr[], int array_length)
 //  Service sub menu functions
 //
 
-
-
 // Function to handle user input and toggle the status of active services
 void adjust_s_services() {
     int user_input;
@@ -253,13 +251,12 @@ void change_preferences() {
     int user_input;
     int setting_offset = STREAM_SERVICE_COUNT;
     
-
     while (1) {
         system(CLEAR_SCREEN);
         print_config_items(setting_offset, "===== Settings Menu =====\n Write 0 to exit menu", SETTING_COUNT);
 
         printf("Enter number:");
-        scanf("%d", &user_input); // Fix: use &user_input to get the address of the variable
+        scanf("%d", &user_input); 
 
         if (toggle_setting(setting_offset, user_input) == 0) {
             printf("Exiting setting s menu.\n");
