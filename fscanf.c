@@ -100,15 +100,10 @@ void import_genre(FILE *f, int genre[])
 
 
     fscanf(f, "%[A-Za-z]%c", one, &buffer);
-    printf("GENRE 1: %s\n", one);
-    printf("buffer 1: %c \n", buffer);
         if(buffer == ','){
             fscanf(f, " %[A-Za-z]%c", two, &buffer);
-                printf("buffer 2: %c \n", buffer);
-                printf("GENRE: 2%s\n", two);
                 if(buffer == ','){
                     fscanf(f, " %[A-Za-z];", three);
-                    printf("GENRE 3: %s\n", three);
                 }
                 else{
                 fscanf(f, ";");
