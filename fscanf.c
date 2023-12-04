@@ -38,9 +38,6 @@ int main (void)
         movie_array[i] = import_movies(f);
     }
 
-    print_movie(movie_array[60]);
-    print_movie(movie_array[2]);
-    print_movie(movie_array[19]);
 
     fclose(f);
     
