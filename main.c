@@ -30,7 +30,6 @@
 // ###############################
 // ###### Constant Variables #####
 // ###############################
-#define MAX_MOVIES 1000
 #define STREAM_SERVICE_COUNT 11
 #define SETTING_COUNT 4
 
@@ -44,56 +43,6 @@
 // ####################
 // ###### Structs #####
 // ####################
-struct genre // Mangler muligvis nogle genrer
-{
-    int action;
-    int adventure;
-    int drama;
-    int crime;
-    int romance;
-    int fantasy;
-    int mystery;
-    int music;
-    int sport;
-    int animation;
-    int biography;
-    int history;
-    int sci_fi;
-    int war;
-    int family;
-    int thriller;
-    int horror;
-    int comedy;
-    int western;
-    int musical;
-};
-
-struct services
-{
-    int netflix;
-    int drtv;
-    int hbo;
-    int disney;
-    int tv2play;
-    int skyshowtime;
-    int filmstriben;
-    int viaplay;
-    int cmore;
-    int amazone_prime;
-    int rakuten;
-};
-
-struct movie
-{
-    int id;
-    char title[50];
-    int pg;
-    int runtime;
-    struct genre genre;
-    int score;
-    char resume[250];
-    struct services services;
-};
 
 typedef struct
 {
@@ -371,80 +320,3 @@ void get_new_recommendation()
     /* Print på samme måde som den almindelige recommendation (nok via en func)
        så der blot vises de nye recommendations */
 }
-
-/*
-void run()
-{
-    struct movie movie_array[MAX_MOVIES];
-
-    import_movies(movie_array);
-}
-
-
-
-void import_movies(struct movie movie_array[])
-{
-
-    FILE *f = fopen("movies.txt", "r");
-    if (f == NULL)
-    {
-        printf("Det mislykkedes at aabne tekstfilen.\n");
-        exit(EXIT_FAILURE);
-    }
-
-
-    for(int i = 0; i < MAX_MOVIES; i++)
-    {
-
-        fscanf(f, "%d;%s;%d;%d;",
-                &movie_array[i].id,
-                movie_array[i].title,
-                &movie_array[i].pg,
-                &movie_array[i].runtime);
-
-        //import genre struct
-
-        fscanf(f, ";%d;%s;",
-        &movie_array[i].score, movie_array[i].resume);
-
-        //import service struct
-    }
-}
-
-import_genre(FILE *f, int movie_array[]){
-
-    char *1[10];
-    char *2[10];
-    char *3[10];
-    char genre_array[] = { "Action", "Adventure","Drama", "Crime",
-                            "Romance", "Fantasy", "Mystery", "Music",
-                            "Sport", "Animation", "Biography", "History",
-                            "Sci_fi", "War", "Family", "Thriller", "Horror",
-                            "Comedy", "Western","Musical"};
-
-    fscanf(f, "%s, %s, %s", 1, 2, genre_3 );
-
-    for(int j = 0; i > 3; i++)
-    {
-        for(int i = 0; i < (sizeof(genre_array))/sizeof(genre_array[0]); i++)
-        {
-
-            if(strcmp(j, genre_array[i]) = 0)
-            {
-                genre.action
-            }
-        }
-    }
-
-
-
-
-}
-
-
-import_services(FILE *f, int movie_array[])
-{
-
-}
-
- */
