@@ -23,7 +23,7 @@ void print_movie(struct movie movie);
 void import_genre(FILE *f, int genre[]);
 struct movie import_movies(FILE *f);
 
-int main (void)
+int fscanf_main (void)
 {
     struct movie movie_array[MAX_MOVIES];
 
