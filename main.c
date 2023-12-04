@@ -131,8 +131,21 @@ void printMenu(setting * config)
     printf("3: Change preferences\n");
     printf("4: EXIT\n");
 
-    scanf("%d", &selection);
+    // Ask the user to select a menu option
+    printf("Enter a number: "); 
+    int result;
 
+    do {
+        result = scanf("%d", &selection);
+
+        // Clear the input buffer if the input is not an integer
+        if (result == 0) {
+            while (getchar() != '\n');
+            printf("You didn't enter a number try again: ");
+        }
+    } while (result != 1);
+
+   
     //
     if (is_element_in_array(selection, menu_option, array_menu_length)) {
         array_of_functions[selection - 1](config);
@@ -169,8 +182,16 @@ void adjust_s_services(setting * config) {
         printf("\nWhich streaming service do you want to activate/deactivate?\n");
         printf("If you don't want to change any, press 0.\n");
         printf("Enter number: ");
+        int result;
+        do {
+            result = scanf("%d", &user_input);
 
-        scanf("%d", &user_input);
+            // Clear the input buffer if the input is not an integer
+            if (result == 0) {
+                while (getchar() != '\n');
+                printf("You didn't enter a number try again: ");
+            }
+        } while (result != 1);
 
         // Toggle the setting and break the loop if the result is 0
         if (toggle_setting(config, 0, user_input) == 0) {
