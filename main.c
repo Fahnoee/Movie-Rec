@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "fscanf.c"
 
 // ###############################
 // ###### Constant Variables #####
@@ -64,6 +65,9 @@ void change_preferences();
 //////////////
 int main(void)
 {
+    //Load document
+    fscanf_main();
+    
     setting config[STREAM_SERVICE_COUNT + SETTING_COUNT] = {
         // Streaming service's
         {"Netflix", 1},
