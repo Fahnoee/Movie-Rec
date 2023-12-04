@@ -37,10 +37,9 @@ int fscanf_main (void)
     for(int i = 0; i < MAX_MOVIES; i++){
         movie_array[i] = import_movies(f);
     }
-
-
+    print_movie(movie_array[60]);
     fclose(f);
-    
+    return 0;
 }
 
 void print_movie(struct movie movie){
