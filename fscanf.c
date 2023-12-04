@@ -23,24 +23,6 @@ void print_movie(struct movie movie);
 void import_genre(FILE *f, int genre[]);
 struct movie import_movies(FILE *f);
 
-int fscanf_main (void)
-{
-    struct movie movie_array[MAX_MOVIES];
-
-    FILE *f = fopen("movies.txt", "r");
-    if (f == NULL)
-    {
-        printf("FILE WAS NOT OPENED.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    for(int i = 0; i < MAX_MOVIES; i++){
-        movie_array[i] = import_movies(f);
-    }
-    print_movie(movie_array[60]);
-    fclose(f);
-    return 0;
-}
 
 void print_movie(struct movie movie){
     char *genre_array[] = {"Action", "Adventure","Drama", "Crime", 
@@ -141,3 +123,8 @@ void import_genre(FILE *f, int genre[])
             }
         }
 }
+
+
+
+
+
