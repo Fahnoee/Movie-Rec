@@ -48,10 +48,10 @@ int is_element_in_array(int x, int arr[], int array_length);
 void quit_function();
 void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
-void read_config();
+void read_config(setting * config);
 int toggle_setting(setting * config, int offset, int setting);
 void print_config_items(setting * config, int offset, const char* header, int print_array_length);
-void change_preferences();
+void change_preferences(setting* config);
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
@@ -122,7 +122,7 @@ void printMenu(setting * config)
     int array_menu_length = 4;
 
     // Array containing the functions that will be called from the main menu
-    void (*array_of_functions[])() = {adjust_s_services, adjust_s_services, change_preferences, quit_function};
+    void (*array_of_functions[])(setting* config) = {adjust_s_services, adjust_s_services, change_preferences, quit_function};
 
     // Print menu options
     printf("== MENU ==\n");
@@ -240,11 +240,13 @@ int toggle_setting(setting * config, int offset, int setting)
         if (config[setting].value == 1)
         {
             config[setting].value = 0;
+            
         }
         else
         {
             config[setting].value = 1;
         }
+        return 1;
     }
     else {
         printf("Invalid input! We try again\n");
