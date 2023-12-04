@@ -19,7 +19,7 @@ This C program is designed to be the best movie recommender in the world. It inc
 - implement Content filtering
 
 ## Known Bugs
-- When input is other then expected input, the program ends it own life
+- When input is other then expected input, the program ends it's own life
 
 ## Libraries
 ```
