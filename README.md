@@ -33,10 +33,36 @@ This C program is designed to be the best movie recommender in the world. It inc
 ```
 #define STREAM_SERVICE_COUNT 11
 #define SETTING_COUNT 4
+
+#ifdef _WIN32
+#define CLEAR_SCREEN "cls"
+#else
+#define CLEAR_SCREEN "clear"
+#endif
 ```
 
 ## Structs
 ```
-
+typedef struct
+{
+    char key[50];
+    int value;
+} setting;
 ```
+
+## Prototypes
+```
+void welcome(setting * config);
+void adjust_s_services(setting * config);
+void printMenu(setting * config);
+int is_element_in_array(int x, int arr[], int array_length);
+void quit_function();
+void write_config(setting *key_value_pair);
+void check_file_opening(FILE *f);
+void read_config();
+int toggle_setting(setting * config, int offset, int setting);
+void print_config_items(setting * config, int offset, const char* header, int print_array_length);
+void change_preferences();
+```
+
 
