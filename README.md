@@ -30,5 +30,13 @@ This C program is designed to be the best movie recommender in the world. It inc
 ```
 
 ## Constant Variables
+```
+#define STREAM_SERVICE_COUNT 11
+#define SETTING_COUNT 4
+```
 
+## Structs
+```
+
+```
 
