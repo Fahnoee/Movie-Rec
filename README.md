@@ -20,6 +20,7 @@ This C program is designed to be the best movie recommender in the world. It inc
 
 ## Known Bugs
 - When input is other then expected input, the program ends it's own life
+- Dosen't print correct movies when selecting option 1 on a windows pc
 
 ## Libraries
 ```
