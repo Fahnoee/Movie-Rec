@@ -56,9 +56,11 @@ struct movie import_movies(FILE *f)
         
         fscanf(f, "%d;%[^;];", &movie.score, movie.resume);
 
-        for(int j = 0; j < MAX_SERVICES; j++){
+        for(int j = 0; j < MAX_SERVICES - 1; j++){
             fscanf(f, "%d;", &movie.services[j]); //Import service
         }
+        
+        fscanf(f, "%d%*[^\n]", &movie.services[MAX_SERVICES - 1]);
 
         return movie;
 }
