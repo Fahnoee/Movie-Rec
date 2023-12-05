@@ -21,6 +21,7 @@
 // ###############################
 #define STREAM_SERVICE_COUNT 11
 #define SETTING_COUNT 4
+#define ARRAY_MENU_LENGTH 4
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -39,13 +40,13 @@ typedef struct
     int value;
 } setting;
 
+
 // #######################
 // ###### Prototypes #####
 // #######################
 void welcome(setting * config);
 void adjust_s_services(setting * config);
-void printMenu(setting * config);
-int is_element_in_array(int x, int arr[], int array_length);
+void printMenu(setting *config, struct movie movies_array[]);
 void quit_function();
 void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
@@ -53,13 +54,11 @@ void read_config(setting * config);
 int toggle_setting(setting * config, int offset, int setting);
 void print_config_items(setting * config, int offset, const char* header, int print_array_length);
 void change_preferences(setting* config);
+void movies_from_services(setting * config, struct movie movie[]);
+int get_value_from_key(setting *config, char *key);
+void get_recommendation(setting * config, int genre[], struct movie movie[], int adult_movies);
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
-
-// ##########################
-// ###### Global Values #####
-// ##########################
-
 
 //////////////
 /////MAIN/////
@@ -68,23 +67,18 @@ int main(void)
 {
     struct movie movie_array[MAX_MOVIES];
 
-
-    
-    //Load document
     FILE *f = fopen("movies.txt", "r");
     if (f == NULL)
     {
-        printf("FILE WAS NOT OPENED.\n");
+        printf("FILE WAS NOT OPENED.\n"); 
         exit(EXIT_FAILURE);
     }
 
-    for(int i = 0; i < MAX_MOVIES; i++){
+    for(int i = 0; i < MAX_MOVIES; i++) {
         movie_array[i] = import_movies(f);
     }
     fclose(f);
-
-    genre_main(movie_array);
-
+   
     setting config[STREAM_SERVICE_COUNT + SETTING_COUNT] = {
         // Streaming service's
         {"Netflix", 1},
@@ -99,7 +93,7 @@ int main(void)
         {"Amazone Prime", 1},
         {"Rakuten", 1},
         // Other settings
-        {"Setting 1", 1},
+        {"Reset all", 0},
         {"Setting 2", 1},
         {"Setting 3", 1},
         {"Setting 4", 1},
@@ -108,15 +102,20 @@ int main(void)
     welcome(config);
 
     int running = 1;
-
-    //system(CLEAR_SCREEN);
-
-    //while (running) {
-        //printMenu(config);
-    //}
+    
+    system(CLEAR_SCREEN);
+    
+    while (running) {
+        printMenu(config, movie_array);
+        if (config[STREAM_SERVICE_COUNT].value == 1) {
+            remove("conf.txt");
+            running = 0;
+        }
+    }
 
     return 0;
 }
+
 
 // Function for welcomming the new user and loading up their config file
 void welcome(setting * config)
@@ -128,62 +127,57 @@ void welcome(setting * config)
 
 // ###########################
 // ###### Menu functions #####
-// ###########################
+// #########################
 
-// Function that creats a main menu and handles it trough other functions
-void printMenu(setting * config)
+// Function that creats a (Btw Emil var imod det) main menu and handles it trough other functions
+void printMenu(setting * config, struct movie movie_array[])
 {
     // Integer value for selecting menu option
     int selection;
-    int menu_option[] = {1, 2, 3, 4};
-    int array_menu_length = 4;
 
-    // Array containing the functions that will be called from the main menu
-    void (*array_of_functions[])(setting* config) = {adjust_s_services, adjust_s_services, change_preferences, quit_function};
-
-    // Print menu options
+     // Print menu options
     printf("== MENU ==\n");
     printf("1: Get a recommendation\n");
     printf("2: Adjust your streaming services\n");
     printf("3: Change preferences\n");
     printf("4: EXIT\n");
 
-    // Ask the user to select a menu option
-    printf("Enter a number: "); 
+    // Ask the user to select a menu option 
+    printf("Enter a number:"); 
     int result;
+        do {
+            result = scanf("%d", &selection);
 
-    do {
-        result = scanf("%d", &selection);
+            // Clear the input buffer if the input is not an integer
+            if (result == 0) {
+                while (getchar() != '\n');
+                printf("You didn't enter a number try again: ");
+            }
+        } while (result != 1);
 
-        // Clear the input buffer if the input is not an integer
-        if (result == 0) {
-            while (getchar() != '\n');
-            printf("You didn't enter a number try again: ");
-        }
-    } while (result != 1);
+    
+    int wanted_genre[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //fiktiv indtil genre er lavet
 
-   
-    //
-    if (is_element_in_array(selection, menu_option, array_menu_length)) {
-        array_of_functions[selection - 1](config);
+    switch (selection) {
+    case 1:
+      get_recommendation(config, wanted_genre, movie_array, 1);
+      break;
+    case 2:
+      adjust_s_services(config);
+      break;
+    case 3:
+      change_preferences(config);      
+      break;
+    case 4:
+      quit_function();
+      break;
+    
+    default:
+      printf("invalid input"); 
+      break;
     }
-    else {
-        printf("Invalid input!");
-    }
-}
-
-// Function to check if x is in array
-int is_element_in_array(int x, int arr[], int array_length)
-{
-    for (int i = 0; i < array_length; i++) {
-        if (arr[i] == x) {
-            return 1; // x found
-        }
-    }
-    return 0; // x not found
-}
-
-//
+ 
+} 
 //  Service sub menu functions
 //
 
@@ -192,7 +186,7 @@ void adjust_s_services(setting * config) {
     int user_input;
 
     while (1) {
-        //system(CLEAR_SCREEN);
+        system(CLEAR_SCREEN);
         print_config_items(config, 0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT);
 
         // Ask the user which streaming service they want to activate/deactivate
@@ -212,7 +206,7 @@ void adjust_s_services(setting * config) {
 
         // Toggle the setting and break the loop if the result is 0
         if (toggle_setting(config, 0, user_input) == 0) {
-            //system(CLEAR_SCREEN);
+            system(CLEAR_SCREEN);
             break;
         }
     }
@@ -223,7 +217,7 @@ void adjust_s_services(setting * config) {
 // Function for quiting the program
 void quit_function()
 {
-    //system(CLEAR_SCREEN);
+    system(CLEAR_SCREEN);
     printf("You have choosen to exit our program, we hope you have a good\n");
     printf("time with the recommended movie  :D\n");
     printf("Your choice of streaming services have been saved \n");
@@ -272,7 +266,7 @@ int toggle_setting(setting * config, int offset, int setting)
     if (setting == 0) {
         return 0;
     }
-    else if (setting >= 0 && setting <= 11) {
+    else if (setting >= 0 && setting <= STREAM_SERVICE_COUNT) {
         setting = (setting + offset) - 1; // Needs to be 1 less then input due to arrays starting at 0
                                           // change the value of the streaming service
         if (config[setting].value == 1)
@@ -340,7 +334,6 @@ void check_file_opening(FILE *f)
 /* Function for getting a new recommendation */
 void get_new_recommendation()
 {
-
     /* kald tidligere recommendation, men tillad ikke de x første/bedste matches at blive vist
        så den tager måske i+5, i+6, i+7, i+8 osv som valg. */
 
@@ -351,3 +344,55 @@ void get_new_recommendation()
     /* Print på samme måde som den almindelige recommendation (nok via en func)
        så der blot vises de nye recommendations */
 }
+
+
+// ##################################
+// ###### Recommendation system #####
+// ##################################
+
+/* Function for getting a reommendation */
+void get_recommendation(setting * config, int genre[], struct movie movie[], int adult_movies) 
+{
+    int g = 0;
+    for(int i = 0; i < MAX_GENRES; i++){
+        g += genre[i];
+    }
+    if(g == 0){
+        genre_main(movie, genre);
+    }
+    printf("%d, %d", genre[0], genre[9]);
+
+
+
+
+    movies_from_services(config, movie);
+
+}
+
+/* Function for finding movies availbel on the given streaming services */
+void movies_from_services(setting * config, struct movie movie[]) 
+{
+     // Assuming 'movie[]' is an array of 'struct movie' and 'service[]' is an array indicating which services are active
+    int filteredMovieIndex = 0;
+    struct movie movie_watchable[MAX_MOVIES];
+    for (int movieIndex = 0; movieIndex < MAX_MOVIES; movieIndex++) {
+        for (int serviceIndex = 0; serviceIndex < STREAM_SERVICE_COUNT; serviceIndex++) {
+            if (config[serviceIndex].value == 1 && movie[movieIndex].services[serviceIndex] == 1) {
+                movie_watchable[filteredMovieIndex] = movie[movieIndex];
+                filteredMovieIndex++;
+                break; // Break the inner loop if the movie is available on any of the selected services
+            }
+        }
+    }
+
+    // Print the movies that are available on the selected services
+    printf("The following movies are available on the selected services:\n");
+    for (int i = 0; i < filteredMovieIndex; i++) {
+        printf("%s\n", movie_watchable[i].title);
+    }
+    
+
+    
+}
+
+/* Function for printing the recommendation */
