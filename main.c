@@ -254,7 +254,7 @@ void quit_function()
 // Change preferences menu printing and toggling
 void change_preferences(setting * config) {
     int user_input;
-    int setting_offset = STREAM_SERVICE_COUNT + GENRE_COUNT;
+    int setting_offset = STREAM_SERVICE_COUNT;
     
     while (1) {
         system(CLEAR_SCREEN);
