@@ -55,7 +55,7 @@ void print_config_items(setting * config, int offset, const char* header, int pr
 void change_preferences(setting* config);
 void movies_from_services(setting * config, struct movie movie[]);
 int get_value_from_key(setting *config, char *key);
-void get_recommendation(setting * config, int genre[], struct movie movie[], int adult_movies);
+void get_recommendation(setting * config, /*int genre[],*/ struct movie movie[]/*, int adult_movies*/);
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
@@ -139,7 +139,7 @@ void printMenu(setting * config, struct movie movie_array[])
     printf("1: Get a recommendation\n");
     printf("2: Adjust your streaming services\n");
     printf("3: Change preferences\n");
-    printf("4: EXIT\n");
+    printf("0: EXIT\n");
 
     // Ask the user to select a menu option 
     printf("Enter a number:"); 
@@ -155,11 +155,11 @@ void printMenu(setting * config, struct movie movie_array[])
         } while (result != 1);
 
     
-    int wanted_genre[20] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}; //fiktiv indtil genre er lavet
+    /*int wanted_genre[20] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};*/ //fiktiv indtil genre er lavet
 
     switch (selection) {
     case 1:
-      get_recommendation(config, wanted_genre, movie_array, 1);
+      get_recommendation(config, /*wanted_genre,*/ movie_array/*, 1*/);
       break;
     case 2:
       adjust_s_services(config);
@@ -167,7 +167,7 @@ void printMenu(setting * config, struct movie movie_array[])
     case 3:
       change_preferences(config);      
       break;
-    case 4:
+    case 0:
       quit_function();
       break;
     
@@ -350,7 +350,7 @@ void get_new_recommendation()
 // ##################################
 
 /* Function for getting a reommendation */
-void get_recommendation(setting * config, int genre[], struct movie movie[], int adult_movies) 
+void get_recommendation(setting * config, /*int genre[], */struct movie movie[]/*, int adult_movies*/) 
 
 {
     movies_from_services(config, movie);
@@ -358,14 +358,18 @@ void get_recommendation(setting * config, int genre[], struct movie movie[], int
 }
 
 /* Function for finding movies availbel on the given streaming services */
-void movies_from_services(setting * config, struct movie movie[]) 
-{
-     // Assuming 'movie[]' is an array of 'struct movie' and 'service[]' is an array indicating which services are active
+
+
+void movies_from_services(setting* config, struct movie movie[]) {
+    // Assuming 'movie[]' is an array of 'struct movie' and 'service[]' is an array indicating which services are active
     int filteredMovieIndex = 0;
     struct movie movie_watchable[MAX_MOVIES];
+
+    // Iterate through movies and services to filter watchable movies
     for (int movieIndex = 0; movieIndex < MAX_MOVIES; movieIndex++) {
         for (int serviceIndex = 0; serviceIndex < STREAM_SERVICE_COUNT; serviceIndex++) {
             if (config[serviceIndex].value == 1 && movie[movieIndex].services[serviceIndex] == 1) {
+                // Movie is available on the selected service, add it to watchable movies
                 movie_watchable[filteredMovieIndex] = movie[movieIndex];
                 filteredMovieIndex++;
                 break; // Break the inner loop if the movie is available on any of the selected services
@@ -378,9 +382,7 @@ void movies_from_services(setting * config, struct movie movie[])
     for (int i = 0; i < filteredMovieIndex; i++) {
         printf("%s\n", movie_watchable[i].title);
     }
-    
-
-    
 }
+
 
 /* Function for printing the recommendation */
