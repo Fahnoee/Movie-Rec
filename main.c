@@ -21,6 +21,7 @@
 #define STREAM_SERVICE_COUNT 11
 #define SETTING_COUNT 4
 #define ARRAY_MENU_LENGTH 4
+#define GENRE_COUNT 20
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -51,11 +52,13 @@ void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
 void read_config(setting * config);
 int toggle_setting(setting * config, int offset, int setting);
-void print_config_items(setting * config, int offset, const char* header, int print_array_length);
+void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
 void change_preferences(setting* config);
 void movies_from_services(setting * config, struct movie movie[]);
 int get_value_from_key(setting *config, char *key);
 void get_recommendation(setting * config, /*int genre[],*/ struct movie movie[]/*, int adult_movies*/);
+void change_genre_config(setting *config);
+int change_setting_value(setting *config, int setting);
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
@@ -78,7 +81,7 @@ int main(void)
     }
     fclose(f);
    
-    setting config[STREAM_SERVICE_COUNT + SETTING_COUNT] = {
+    setting config[STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT] = {
         // Streaming service's
         {"Netflix", 1},
         {"DRTV", 1},
@@ -96,6 +99,27 @@ int main(void)
         {"Setting 2", 1},
         {"Setting 3", 1},
         {"Setting 4", 1},
+        // Genres
+        {"Action", 1},
+        {"Adventure", 1},
+        {"Drama", 1},
+        {"Crime", 1},
+        {"Romance", 1},
+        {"Fantasy", 1},
+        {"Mystery", 1},
+        {"Music", 1},
+        {"Sport", 1},
+        {"Animation", 1},
+        {"Biography", 1},
+        {"History", 1},
+        {"Scifi", 1},
+        {"War", 1},
+        {"Family", 1},
+        {"Thriller", 1},
+        {"Horror", 1},
+        {"Comedy", 1},
+        {"Western", 1},
+        {"Musical", 1},
     };
 
     welcome(config);
@@ -138,7 +162,8 @@ void printMenu(setting * config, struct movie movie_array[])
     printf("== MENU ==\n");
     printf("1: Get a recommendation\n");
     printf("2: Adjust your streaming services\n");
-    printf("3: Change preferences\n");
+    printf("3: Change genre weights\n");
+    printf("4: Change preferences\n");
     printf("0: EXIT\n");
 
     // Ask the user to select a menu option 
@@ -165,6 +190,9 @@ void printMenu(setting * config, struct movie movie_array[])
       adjust_s_services(config);
       break;
     case 3:
+      change_genre_config(config);      
+      break;
+    case 4:
       change_preferences(config);      
       break;
     case 0:
@@ -186,7 +214,7 @@ void adjust_s_services(setting * config) {
 
     while (1) {
         system(CLEAR_SCREEN);
-        print_config_items(config, 0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT);
+        print_config_items(config, 0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT, 0);
 
         // Ask the user which streaming service they want to activate/deactivate
         printf("\nWhich streaming service do you want to activate/deactivate?\n");
@@ -226,11 +254,11 @@ void quit_function()
 // Change preferences menu printing and toggling
 void change_preferences(setting * config) {
     int user_input;
-    int setting_offset = STREAM_SERVICE_COUNT;
+    int setting_offset = STREAM_SERVICE_COUNT + GENRE_COUNT;
     
     while (1) {
         system(CLEAR_SCREEN);
-        print_config_items(config , setting_offset, "===== Settings Menu =====\n Write 0 to exit menu", SETTING_COUNT);
+        print_config_items(config , setting_offset, "===== Settings Menu =====\n Write 0 to exit menu", SETTING_COUNT, 0);
 
         printf("Enter number:");
         scanf("%d", &user_input); 
@@ -247,25 +275,84 @@ void change_preferences(setting * config) {
     write_config(config);
 }
 
-// Function for printing what is available at the moment
-void print_config_items(setting * config, int offset, const char* header, int print_array_length) {
-    printf("\n%s:\n", header);
+// sub menu for changing genre config
+void change_genre_config(setting * config) 
+{
+    int user_input;
+    int setting_offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
+    
+    while (1) {
+        int user_input;
+        
+        
+        system(CLEAR_SCREEN);
+        print_config_items(config , setting_offset, "===== Genre Menu =====\n Write 0 to exit menu", GENRE_COUNT, 1);
 
-    for (int i = 0; i < print_array_length; i++) {
-        if (config[i + offset].value == 1) {
-            printf("%3d: %-13s   [x]\n", i + 1, config[i + offset].key);
-        } else {
-            printf("%3d: %-13s   [ ]\n", i + 1, config[i + offset].key);
+        printf("Select Genre: ");
+        scanf("%d", &user_input); 
+
+        if (change_setting_value(config, user_input) == 0) {
+            printf("Exiting setting's menu.\n");
+            system(CLEAR_SCREEN);
+            break;
+        } 
+    }
+    write_config(config);
+}
+
+
+
+// Function for printing what is available at the moment
+void print_config_items(setting * config, int offset, const char* header, int print_array_length, int valueBool) {
+    printf("\n%s:\n", header);
+    if (valueBool == 0) {
+        for (int i = 0; i < print_array_length; i++) {
+            if (config[i + offset].value == 1) {
+                printf("%3d: %-13s   [x]\n", i + 1, config[i + offset].key);
+            } else {
+                printf("%3d: %-13s   [ ]\n", i + 1, config[i + offset].key);
+            }
         }
+    } else if (valueBool == 1) {
+        for (int i = 0; i < print_array_length; i++) {
+            printf("%3d: %-13s   [%d]\n", i + 1, config[i + offset].key, config[i + offset].value);
+        }
+    }    
+}
+
+
+// changes a value in the config array of structs
+int change_setting_value(setting * config, int setting) {
+    int offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
+    int user_input;
+
+    if (setting == 0) {
+        return 0;
+    }
+   
+    if (setting >= 1 && setting <= STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT) {
+        setting = (setting + offset) - 1;
+        printf("Enter a value for %s: ", config[setting].key);
+        scanf("%d", &user_input);
+        if (user_input >= 1 && user_input <= 10) {
+            config[setting].value = user_input;
+        } else {
+        printf("Invalid input! We try again\n");
+        return 1;
+    }
+        return 1;
     }
 }
+
 // Toggles a value in the config array of structs
 int toggle_setting(setting * config, int offset, int setting)
 {
     if (setting == 0) {
         return 0;
     }
-    else if (setting >= 0 && setting <= STREAM_SERVICE_COUNT) {
+    
+    
+    if (setting >= 1 && setting <= STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT) {
         setting = (setting + offset) - 1; // Needs to be 1 less then input due to arrays starting at 0
                                           // change the value of the streaming service
         if (config[setting].value == 1)
@@ -296,7 +383,7 @@ void write_config(setting *key_value_pair)
     config_file = fopen("conf.txt", "w"); // Opens file
     check_file_opening(config_file);      // Checks if it is read correctly
 
-    for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT); i++) { // Forloop that writes the config file
+    for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT); i++) { // Forloop that writes the config file
         fprintf(config_file, "%s=%d \n", key_value_pair[i].key, key_value_pair[i].value);
     }
 
@@ -315,7 +402,7 @@ void read_config(setting * config)
         check_file_opening(file);
     }
 
-    for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT); i++) {
+    for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT); i++) {
         fscanf(file, "%[^=]=%d ", config[i].key, &config[i].value);
     }
     fclose(file);
