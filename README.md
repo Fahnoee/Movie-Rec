@@ -13,14 +13,11 @@ This C program is designed to be the best movie recommender in the world. It inc
 
 
 ## TODO List
-- Maybe a struct that takes the settings so you could parse it into functions.
 - Implement age rating setting
-- Implement genre selection
 - implement Content filtering
 
 ## Known Bugs
-- When input is other then expected input, the program ends it's own life
-- Dosen't print correct movies when selecting option 1 on a windows pc
+- NULL
 
 ## Libraries
 ```
