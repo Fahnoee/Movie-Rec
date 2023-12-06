@@ -25,13 +25,17 @@ This C program is designed to be the best movie recommender in the world. It inc
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "fscanf.c"
 ```
 
 ## Constant Variables
 ```
 #define STREAM_SERVICE_COUNT 11
 #define SETTING_COUNT 4
+#define ARRAY_MENU_LENGTH 4
+#define GENRE_COUNT 20
 
+// Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
 #define CLEAR_SCREEN "cls"
 #else
@@ -50,17 +54,22 @@ typedef struct
 
 ## Prototypes
 ```
+void get_recommendation(setting * config, /*int genre[],*/ struct movie movie[]/*, int adult_movies*/);
+void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
+void change_preferences(setting* config);
+void movies_from_services(setting * config, struct movie movie[]);
+void change_genre_config(setting *config);
 void welcome(setting * config);
 void adjust_s_services(setting * config);
-void printMenu(setting * config);
-int is_element_in_array(int x, int arr[], int array_length);
+void printMenu(setting *config, struct movie movies_array[]);
 void quit_function();
 void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
-void read_config();
+void read_config(setting * config);
 int toggle_setting(setting * config, int offset, int setting);
-void print_config_items(setting * config, int offset, const char* header, int print_array_length);
-void change_preferences();
+int get_value_from_key(setting *config, char *key);
+int change_setting_value(setting *config, int setting);
+int scanf_for_int(void);
 ```
 
 
