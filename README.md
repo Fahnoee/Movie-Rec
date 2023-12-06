@@ -17,7 +17,7 @@ This C program is designed to be the best movie recommender in the world. It inc
 - implement Content filtering
 
 ## Known Bugs
-- NULL
+- Shawshank redemption in recommendation system
 
 ## Libraries
 ```
