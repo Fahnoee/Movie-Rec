@@ -72,6 +72,7 @@ void add_weight(struct movie movie, setting *config);
 void weight_genre(struct movie movie, setting *config);
 int print_info(struct movie movie);
 void select_movie(struct movie show_five_movie_arr[], setting *config);
+double choice_of_scaling(setting *config, int genre_count);
 void screen_clear();
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
@@ -111,30 +112,30 @@ int main(void)
         {"Rakuten", 1},
         // Other settings
         {"Reset all", 0},
-        {"Setting 2", 1},
-        {"Setting 3", 1},
-        {"Setting 4", 1},
+        {"Square root scaling", 1},
+        {"Linear scaling", 0},
+        {"Logarithmic scaling", 0},
         // Genres
-        {"Action", 1},
-        {"Adventure", 1},
-        {"Drama", 1},
-        {"Crime", 1},
-        {"Romance", 1},
-        {"Fantasy", 1},
-        {"Mystery", 1},
-        {"Music", 1},
-        {"Sport", 1},
-        {"Animation", 1},
-        {"Biography", 1},
-        {"History", 1},
-        {"Scifi", 1},
-        {"War", 1},
-        {"Family", 1},
-        {"Thriller", 1},
-        {"Horror", 1},
-        {"Comedy", 1},
-        {"Western", 1},
-        {"Musical", 1},
+        {"Action", 5},
+        {"Adventure", 5},
+        {"Drama", 5},
+        {"Crime", 5},
+        {"Romance", 5},
+        {"Fantasy", 5},
+        {"Mystery", 5},
+        {"Music", 5},
+        {"Sport", 5},
+        {"Animation", 5},
+        {"Biography", 5},
+        {"History", 5},
+        {"Scifi", 5},
+        {"War", 5},
+        {"Family", 5},
+        {"Thriller", 5},
+        {"Horror", 5},
+        {"Comedy", 5},
+        {"Western", 5},
+        {"Musical", 5},
     };
 
     welcome(config);
@@ -259,13 +260,21 @@ void adjust_s_services(setting * config) {
 void reset_conf(setting * config) {
     int lines_in_config = STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT;
     if (config[STREAM_SERVICE_COUNT + 1].value == 1) {
-        for (int i = 0; i < lines_in_config; i++) {
-            if (i == 11){ 
-                config[i].value = 0;    
-                continue;               //skips the line where reset config has been written
-            }
+        //for streamingservices
+        for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
             config[i].value = 1;
         }
+        //for settings
+        for (int i = STREAM_SERVICE_COUNT; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
+            config[i].value = 0;
+            config[(STREAM_SERVICE_COUNT + 1)].value = 1;
+        }
+        //for genres
+        for (int i = STREAM_SERVICE_COUNT + SETTING_COUNT; i < lines_in_config; i++) {
+            config[i].value = 5;
+        }
+        
+        
         screen_clear();
         write_config(config);
         printf("\nAll of your settings have been reset :) \n");
@@ -299,6 +308,24 @@ void change_preferences(setting * config) {
             break;
         }
 
+        if (user_input == 2){
+            config[12].value = 1;
+            config[13].value = 0;
+            config[14].value = 0;
+            break;
+        } else if (user_input == 3){
+            config[12].value = 0;
+            config[13].value = 1;
+            config[14].value = 0;
+            break;
+        } else if (user_input == 4){
+            config[12].value = 0;
+            config[13].value = 0;
+            config[14].value = 1;
+            break;            
+        }
+        
+
         if ((toggle_setting(config, setting_offset, user_input) == 0) && (user_input != 1)) {
             printf("Exiting settings menu.\n");
             screen_clear();
@@ -307,7 +334,6 @@ void change_preferences(setting * config) {
     }
     write_config(config);
 }
-
 
 // sub menu for changing genre config
 void change_genre_config(setting * config) 
@@ -330,21 +356,20 @@ void change_genre_config(setting * config)
     write_config(config);
 }
 
-
 // Function for printing what is available at the moment
 void print_config_items(setting * config, int offset, const char* header, int print_array_length, int valueBool) {
     printf("%s:\n", header);
     if (valueBool == 0) {
         for (int i = 0; i < print_array_length; i++) {
             if (config[i + offset].value == 1) {
-                printf("%3d: %-13s   [x]\n", i + 1, config[i + offset].key);
+                printf("%2d: %-21s   [x]\n", i + 1, config[i + offset].key);
             } else {
-                printf("%3d: %-13s   [ ]\n", i + 1, config[i + offset].key);
+                printf("%2d: %-21s   [ ]\n", i + 1, config[i + offset].key);
             }
         }
     } else if (valueBool == 1) {
         for (int i = 0; i < print_array_length; i++) {
-            printf("%3d: %-13s   [%d]\n", i + 1, config[i + offset].key, config[i + offset].value);
+            printf("%2d: %-21s   [%d]\n", i + 1, config[i + offset].key, config[i + offset].value);
         }
     }    
 }
@@ -413,7 +438,7 @@ void write_config(setting *key_value_pair)
     config_file = fopen("conf.txt", "w"); // Opens file
     check_file_opening(config_file);      // Checks if it is read correctly
 
-    for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT); i++) { // Forloop that writes the config file
+    for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT); i++) {       // Forloop that writes the config file
         fprintf(config_file, "%s=%d \n", key_value_pair[i].key, key_value_pair[i].value);
     }
 
@@ -425,8 +450,8 @@ void read_config(setting * config)
 {
     FILE *file;
     file = fopen("conf.txt", "r");
-    if (file == NULL) {                         // In case of first opening of program the config will be missing
-        write_config(config); // Here a config is writing from the global variable.
+    if (file == NULL) {                     // In case of first opening of program the config will be missing
+        write_config(config);               // Here a config is writing from the global variable.
 
         file = fopen("conf.txt", "r"); // Re-open the file after creating it
         check_file_opening(file);
@@ -550,7 +575,7 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
 // ###### Weighting #####
 // ######################
 
-void weight_genre(struct movie movie, /*struct*/ setting *config)
+void weight_genre(struct movie movie, setting *config)
 {
     int user_input = 2;
     do{
@@ -674,7 +699,7 @@ int print_info(struct movie movie)
     printf("IMDB rating:     %d\n\n", movie.score);
     printf("Resume:\n%s\n\n", movie.resume);
     
-    printf("Avaliable on the following services:\n");
+    printf("Available on the following services:\n");
     for(int i = 0; i < MAX_SERVICES; i++){
         if(movie.services[i] == 1){
             printf(" --> %s\n", service_array[i]);
@@ -687,11 +712,25 @@ int print_info(struct movie movie)
         scanf(" %d", &user_input);
     } while (user_input != 1 && user_input != 0);
 
-    if(user_input == 1){
+    if(user_input == 1) {
         return user_input;
     }
-    else{
+    else {
         return 0;
     }
 }
 
+double choice_of_scaling(setting *config, int genre_count)
+{    
+    //looks in config to find what preference off scaling is choosen
+    if (config[STREAM_SERVICE_COUNT + 1].value == 1) {
+        return sqrt(genre_count);
+    }
+    else if (config[STREAM_SERVICE_COUNT + 2].value == 1) {
+        return genre_count;
+    }
+    else if (config[STREAM_SERVICE_COUNT + 3].value == 1) {
+        return log(genre_count + 1);
+    }
+    return 0;
+}
