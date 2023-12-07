@@ -25,7 +25,7 @@
 #define SETTING_COUNT 4
 #define ARRAY_MENU_LENGTH 4
 #define GENRE_COUNT 20
-#define DEBUG 1
+#define DEBUG 0
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -325,8 +325,6 @@ void change_genre_config(setting * config)
     
     while (1) {
         int user_input;
-        
-        
         screen_clear();
         print_config_items(config , setting_offset, "===== Genre Menu =====\n Write 0 to exit menu", GENRE_COUNT, 1);
 
@@ -343,7 +341,7 @@ void change_genre_config(setting * config)
 
 // Function for printing what is available at the moment
 void print_config_items(setting * config, int offset, const char* header, int print_array_length, int valueBool) {
-    printf("\n%s:\n", header);
+    printf("%s:\n", header);
     if (valueBool == 0) {
         for (int i = 0; i < print_array_length; i++) {
             if (config[i + offset].value == 1) {
@@ -518,7 +516,6 @@ void print_recommended_menu(struct movie top_movies[], int top_count, struct mov
         print_info(show_five_movie_arr[i]);
     }*/
 
-    select_movie(show_five_movie_arr, config);
 }
 
 
@@ -630,18 +627,21 @@ void weight_genre(struct movie movie, /*struct*/ setting *config)
 {
     int user_input = 2;
     do{
-    printf("Return to the program when you have watched the movie...\n");
-    printf("Did you enjoy this movie?\n");
-    printf("Type '1' for yes, '-1' for no and '0' for don'\n");
-    user_input = scanf_for_int();
+        screen_clear();
+        printf("Return to the program when you have watched the movie...\n");
+        printf("Did you enjoy this movie?\n");
+        printf(" 2  for yes\n");
+        printf(" 1  for no\n");
+        printf(" 0  if you don't know\n"); 
+        user_input = scanf_for_int();
     }
-    while(user_input < -1 && user_input > 1);
-
-    if(user_input == -1){
+    while(user_input < 0 && user_input > 2);
+    screen_clear();
+    if(user_input == 1){
         subtract_weight(movie, config);
     }
 
-    else if(user_input == 1){
+    else if(user_input == 2){
         add_weight(movie, config);
     }
     write_config(config);
@@ -653,16 +653,20 @@ void subtract_weight(struct movie movie, setting *config)
     
     for(int i = 0; i < MAX_GENRES; i++){
         if(movie.genre[i] == 1){
-            if((config[config_offset + i].value > 6 && config[config_offset + i].value <= 10) || 
-                (config[config_offset + i].value < 5 && config[config_offset + i].value > 0)){
-
-                config[config_offset + i].value -= 1;
+            if(config[config_offset + i].value > 7 && config[config_offset + i].value <= 10){
+                
+                if(config[config_offset + i].value == 10){
+                    config[config_offset + i].value -= 3;
+                }
+                else{
+                    config[config_offset + i].value -= 2;
+                }
             }
             else if(config[config_offset + i].value == 1){
                 continue;
             }
             else{
-                config[config_offset + i].value -= 2;
+                config[config_offset + i].value -= 1;
             }
         }
     }
@@ -674,17 +678,21 @@ void add_weight(struct movie movie, setting *config)
     
     for(int i = 0; i < MAX_GENRES; i++){
         if(movie.genre[i] == 1){
-            if((config[config_offset + i].value > 5 && config[config_offset + i].value < 10) || 
-                (config[config_offset + i].value < 4 && config[config_offset + i].value > 0)){
-            
-                config[config_offset + i].value += 1 ;
+            if(config[config_offset + i].value < 4 && config[config_offset + i].value > 0){
+                
+                if(config[config_offset + i].value == 1){
+                    config[config_offset + i].value += 3;
+                }
+                else{
+                    config[config_offset + i].value += 2;
+                }
             }
             else if(config[config_offset + i].value == 10){
-                continue;   
+                continue;
             }
             else{
-                config[config_offset + i].value += 2;
-            }  
+                config[config_offset + i].value += 1;
+            }
         }
     } 
 }
@@ -694,16 +702,18 @@ void select_movie(struct movie show_five_movie_arr[], setting *config)
     int i = 0;
     int movie_pick = 0;
     do{
-    printf("Type a movienumber to show information.\n\n");
-    for(int i = 0; i < 5; i++){
-        printf("Movie %d: '%s'\n", i+1, show_five_movie_arr[i].title);
-    }   
-    scanf(" %d", &movie_pick);
-    movie_pick -= 1;
+        screen_clear();
+        printf("===== Recommendations =====\n\n");
+        for(int i = 0; i < 5; i++){
+            printf("Movie %d: %s\n", i+1, show_five_movie_arr[i].title);
+        }   
+        printf("\nSelect a movie to show information:\n");
+        scanf(" %d", &movie_pick);
+        movie_pick -= 1;
 
-    i = print_info(show_five_movie_arr[movie_pick]);
+        i = print_info(show_five_movie_arr[movie_pick]);
     }while(i == 0);
-
+    
     weight_genre(show_five_movie_arr[movie_pick], config);
 }   
 
@@ -718,39 +728,39 @@ int print_info(struct movie movie)
     char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney +", 
                             "TV2 Play", "SkyShowtime", "Filmstriben", "Viaplay", 
                             "C more", "Amazon Prime", "Rakuten"};
-    
-    printf("Movie info:\n");
-    printf("Title: %s\n", movie.title);
+    screen_clear();
+    printf("=== Movie info ===\n\n");
+    printf("Title:           %s\n", movie.title);
     printf("Year of release: %d\n",movie.year);
-    printf("PG-rating: %s\n", movie.pg);
-    printf("Runtime: %d\n", movie.runtime);
-    printf("IMDB rating: %d \n", movie.score);
-    printf("Resume: %s \n", movie.resume);
-    
-    printf("Genres:");
+    printf("PG-rating:       %s\n", movie.pg);
+    printf("Runtime:         %d\n", movie.runtime);
+    printf("Genre(s):       ");
     for(int i = 0; i < MAX_GENRES; i++){
         if(movie.genre[i] == 1){
             printf(" %s", genre_array[i]);
         }
     }
     printf("\n");
-
-    printf("Avaiable on the following services:");
+    printf("IMDB rating:     %d\n\n", movie.score);
+    printf("Resume:\n%s\n\n", movie.resume);
+    
+    printf("Avaliable on the following services:\n");
     for(int i = 0; i < MAX_SERVICES; i++){
         if(movie.services[i] == 1){
-            printf(" %s", genre_array[i]);
+            printf(" --> %s\n", service_array[i]);
         }
     }
     printf("\n");
     do{
-    printf("Type 1 for watch or type 0 to return to recommendations.\n");
-    scanf(" %d", &user_input);
+        printf("Type 1 to watch\n");
+        printf("Type 0 to return to recommendations.\n");
+        scanf(" %d", &user_input);
     } while (user_input != 1 && user_input != 0);
 
     if(user_input == 1){
         return user_input;
     }
-    else if(user_input == 0){
-        return user_input;
+    else{
+        return 0;
     }
 }
