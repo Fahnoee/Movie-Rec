@@ -13,6 +13,7 @@
 #include <math.h>
 #include <string.h>
 #include "fscanf.c"
+#include <math.h>
 
 // ###############################
 // ###### Constant Variables #####
@@ -63,7 +64,7 @@ int change_setting_value(setting *config, int setting);
 int scanf_for_int(void);
 void reset_conf(setting * config);
 void get_recommendation(setting *config, struct movie all_movies[]);
-void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count);
+void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
 int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie);
 void screen_clear();
 
@@ -148,19 +149,17 @@ void screen_clear() {
 }
 
 
-// Function for welcomming the new user and loading up their config file
+// Function for welcoming the new user and loading up their config file
 void welcome(setting * config)
 {
     read_config(config);
-    printf("\nHey mate, welcome to this movie recommender\n");
-    printf("\n");
 }
 
 // ###########################
 // ###### Menu functions #####
 // #########################
 
-// Function that creats a (Btw Emil var imod det) main menu and handles it trough other functions
+// Function that creates a main menu and handles it trough other functions
 void printMenu(setting * config, struct movie movie_array[])
 {
     // Integer value for selecting menu option
@@ -265,16 +264,16 @@ void reset_conf(setting * config) {
         write_config(config);
         printf("\nAll of your settings have been reset :) \n");
     }
-}
+}    
 
-// Function for quiting the program
+// Function for quitting the program
 void quit_function()
 {
     screen_clear();
     printf("You have choosen to exit our program, we hope you have a good\n");
     printf("time with the recommended movie  :D\n");
     printf("Your choice of streaming services have been saved \n");
-    exit(EXIT_FAILURE);
+    exit(EXIT_SUCCESS);
 }
 
 // Change preferences menu printing and toggling
@@ -320,7 +319,6 @@ void change_genre_config(setting * config)
         printf("Select Genre: ");
         user_input = scanf_for_int();
         if (change_setting_value(config, user_input) == 0) {
-            printf("Exiting setting's menu.\n");
             screen_clear();
             break;
         } 
@@ -418,13 +416,13 @@ void write_config(setting *key_value_pair)
     fclose(config_file); // Close file
 }
 
-// Function for reading a config, used to save available streaming servives
+// Function for reading a config, used to save available streaming services
 void read_config(setting * config)
 {
     FILE *file;
     file = fopen("conf.txt", "r");
     if (file == NULL) {                         // In case of first opening of program the config will be missing
-        write_config(config); // Here a config is writting from the global variable.
+        write_config(config); // Here a config is writing from the global variable.
 
         file = fopen("conf.txt", "r"); // Re-open the file after creating it
         check_file_opening(file);
@@ -468,94 +466,48 @@ void get_new_recommendation()
 // The main recommendation function
 void get_recommendation(setting *config, struct movie all_movies[]) {
     struct movie top_movies[3];
-    filter_and_rank_movies(config, all_movies, top_movies, 3); // pass 3 directly
+    filter_and_rank_movies(config, all_movies, top_movies, 3);
 
     printf("\nTop 3 Recommended Movies:\n");
     for (int i = 0; i < 3; i++) {
-        print_movie(top_movies[i]);  // Assuming a function to print movie details
+        print_movie(top_movies[i]);
     }
+
 }
+
 
 // Helper function to compare movies for qsort
 int compareMovies(const void *a, const void *b) {
-    float scoreA = ((const struct movie *)a)->score;
-    float scoreB = ((const struct movie *)b)->score;
+    struct movie *movieA = (struct movie *)a;
+    struct movie *movieB = (struct movie *)b;
 
-    // Compare scores in descending order
-    if (scoreA < scoreB) return 1;
-    if (scoreA > scoreB) return -1;
+    if (movieA->genre_score > movieB->genre_score) return -1;
+    else if (movieA->genre_score < movieB->genre_score) return 1;
     return 0;
-}/*
+}
+
 // Helper function to filter and rank movies 
+
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count) {
-    float scores[MAX_MOVIES] = {0};
-    int genre_count, genre_weight;
-
-    // Initialize top_movies array
-    for (int i = 0; i < top_count; i++) {
-        top_movies[i] = all_movies[0]; // Initialize with a default movie
-    }
-
     // Calculate scores for each movie
     for (int i = 0; i < MAX_MOVIES; i++) {
-        genre_count = 0;
+        all_movies[i].genre_score = 0;
+        int genre_count = 0;
         // Check if the movie is available on any active streaming service
         for (int j = 0; j < STREAM_SERVICE_COUNT; j++) {
             if (config[j].value == 1 && all_movies[i].services[j] == 1) {
                 // Calculate score based on genre weights
                 for (int k = 0; k < GENRE_COUNT; k++) {
                     if (all_movies[i].genre[k] == 1) {
-                        genre_weight = config[STREAM_SERVICE_COUNT + SETTING_COUNT + k].value;
-                        scores[i] += genre_weight;
+                        int genre_weight = config[STREAM_SERVICE_COUNT + SETTING_COUNT + k].value;
+                        all_movies[i].genre_score += genre_weight;
                         genre_count++;
                     }
                 }
-                if (genre_count > 0) {
-                    scores[i] /= genre_count; // Get the average score
-                }
-                break; // No need to check other streaming services
-            }
-        }
-    }
+                all_movies[i].genre_score /= sqrt((double)genre_count);
+                // Optional: Add a balancing factor for movies with multiple genres
+                // all_movies[i].genre_score += BALANCING_FACTOR * (genre_count - 1);
 
-    // Find top movies based on scores
-    for (int i = 0; i < MAX_MOVIES; i++) {
-        for (int j = 0; j < top_count; j++) {
-            if (scores[i] > scores[top_movies[j].id] && !is_movie_already_selected(top_movies, top_count, all_movies[i])) {
-                // Shift the lower ranked movies down
-                for (int k = top_count - 1; k > j; k--) {
-                    top_movies[k] = top_movies[k - 1];
-                }
-                top_movies[j] = all_movies[i];
-                break;
-            }
-        }
-    }
-}*/
-
-
-
-void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count) {
-    float scores[MAX_MOVIES] = {0};
-    int genre_count, genre_weight;
-
-    // Calculate scores for each movie
-    for (int i = 0; i < MAX_MOVIES; i++) {
-        genre_count = 0;
-        // Check if the movie is available on any active streaming service
-        for (int j = 0; j < STREAM_SERVICE_COUNT; j++) {
-            if (config[j].value == 1 && all_movies[i].services[j] == 1) {
-                // Calculate score based on genre weights
-                for (int k = 0; k < GENRE_COUNT; k++) {
-                    if (all_movies[i].genre[k] == 1) {
-                        genre_weight = config[STREAM_SERVICE_COUNT + SETTING_COUNT + k].value;
-                        scores[i] += genre_weight;
-                        genre_count++;
-                    }
-                }
-                if (genre_count > 0) {
-                    scores[i] = (scores[i] / genre_count);  // Get the average score
-                }
                 break; // No need to check other streaming services
             }
         }
@@ -565,10 +517,15 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
     qsort(all_movies, MAX_MOVIES, sizeof(struct movie), compareMovies);
 
     // Copy the top movies to the result array
-    for (int i = 0; i < top_count; i++) {
+    for (int i = 0; i < top_count && i < MAX_MOVIES; i++) {
         top_movies[i] = all_movies[i];
     }
 }
+
+
+
+
+
 
 
 
