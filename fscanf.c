@@ -18,6 +18,7 @@ struct movie
     char resume[1000];
     int services[11];
     int genre_score;
+    int service_id;
 };
 
 void print_movie(struct movie movie);
