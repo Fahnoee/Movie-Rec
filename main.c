@@ -470,32 +470,10 @@ void get_new_recommendation()
 // The main recommendation function
 void get_recommendation(setting *config, struct movie all_movies[]) {
     struct movie top_movies[5];
-    struct movie random_movies[2];
-    struct movie final_five_movies[5];
-    
-    select_movie(all_movies, config);
+    filter_and_rank_movies(config, all_movies, top_movies, 5);
+    select_movie(top_movies, config);
 }
 
-
-void print_recommended_menu(struct movie top_movies[], int top_count, struct movie movie_watchable[], int watchable_count, setting *config) {
-    struct movie show_five_movie_arr[5];
-    
-    filter_and_rank_movies(config, all_movies, top_movies, 3);
-    //find_random_movies_not_in_list(config, all_movies);
-    //add_movies_together(top_movies, random_movies, final_five_movies, all_movies, config);
-
-
-    printf("\nTop 3 Recommended Movies:\n");
-    for (int i = 0; i < 3; i++) {
-        print_movie(top_movies[i]);
-    }
-
-    printf("\nRANDOME MOVIES!!!:\n");
-    for (int i = 3; i < 5; i++) {
-        print_movie(top_movies[i]);
-    }
-
-}
 
 
 
@@ -677,7 +655,7 @@ int print_info(struct movie movie)
                             "Sport", "Animation", "Biography", "History", 
                             "Scifi", "War", "Family", "Thriller", "Horror", 
                             "Comedy", "Western","Musical"};
-    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney +", 
+    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney+", 
                             "TV2 Play", "SkyShowtime", "Filmstriben", "Viaplay", 
                             "C more", "Amazon Prime", "Rakuten"};
     screen_clear();
@@ -685,7 +663,7 @@ int print_info(struct movie movie)
     printf("Title:           %s\n", movie.title);
     printf("Year of release: %d\n",movie.year);
     printf("PG-rating:       %s\n", movie.pg);
-    printf("Runtime:         %d\n", movie.runtime);
+    printf("Runtime:         %d min\n", movie.runtime);
     printf("Genre(s):       ");
     for(int i = 0; i < MAX_GENRES; i++){
         if(movie.genre[i] == 1){
