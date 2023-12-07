@@ -354,7 +354,7 @@
 353;Persepolis (2007);PG-13;96 min;Animation, Biography, Drama;80;A precocious and outspoken Iranian girl grows up during the Islamic Revolution.;0;0;0;0;0;0;0;0;0;0;0;0
 354;Dallas Buyers Club (2013);R;117 min;Biography, Drama;80;In 1985 Dallas, electrician and hustler Ron Woodroof works around the system to help AIDS patients get the medication they need after he is diagnosed with the disease.;0;0;0;0;0;0;1;0;0;0;0;0
 355;The Pursuit of Happyness (2006);PG-13;117 min;Biography, Drama;80;A struggling salesman takes custody of his son as he's poised to begin a life-changing professional career.;0;0;0;0;1;0;0;1;1;0;0;0
-356;Blood Diamond (2006);R;143 min;Adventure, Drama, Thriller;80;A fisherman, a smuggler, and a syndicate of businessmen match wits over the possession of a priceless diamond.;0;0;1;0;0;0;0;1;0;0;0;0
+356;Blood Diamond (2006);R;143 min;Adventure, Drama, Thriller;80;A fisherman, a smuggler, and a syndicate of businessmen match wits over the possession of a priceless diamond.;0;1;1;0;0;0;0;1;0;0;0;0
 357;The Bourne Ultimatum (2007);PG-13;115 min;Action, Mystery, Thriller;80;Jason Bourne dodges a ruthless C.I.A. official and his Agents from a new assassination program while searching for the origins of his life as a trained killer.;1;0;0;0;0;1;0;1;0;1;0;0
 358;3-Iron (2004);R;88 min;Crime, Drama, Romance;80;A transient young man breaks into empty homes to partake of the vacationing residents' lives for a few days.;0;0;0;0;0;0;0;0;0;0;0;0
 359;Sin City (2005);R;124 min;Crime, Thriller;80;A movie that explores the dark and miserable town, Basin City, tells the story of three different people, all caught up in violent corruption.;0;0;0;0;0;0;0;0;0;0;0;0
