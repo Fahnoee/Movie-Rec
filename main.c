@@ -73,6 +73,10 @@ void print_recommended_menu(struct movie top_movies[], int top_count, struct mov
 void subtract_weight(struct movie movie, setting *config);
 void add_weight(struct movie movie, setting *config);
 void weight_genre(struct movie movie, setting *config);
+int print_info(struct movie movie);
+void select_movie(struct movie show_five_movie_arr[], setting *config);
+
+
 void screen_clear();
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
@@ -481,10 +485,12 @@ void get_recommendation(setting *config, struct movie all_movies[]) {
     filter_and_rank_movies(config, available_movies, top_movies, 3, filtered_movie_index);
     
     // Print the recommendation menu
-    print_recommended_menu(top_movies, 3, available_movies, filtered_movie_index, config);
+    //print_recommended_menu(top_movies, 3, available_movies, filtered_movie_index, config);
 
     // Free the dynamically allocated memory
-    free(available_movies);
+    //free(available_movies);
+
+    select_movie(all_movies, config);
 }
 
 
@@ -507,10 +513,12 @@ void print_recommended_menu(struct movie top_movies[], int top_count, struct mov
     }
 
     // Print the movies
-    printf("===== Pick a movie =====\n Write 0 to exit menu\n");
+    /*printf("===== Pick a movie =====\n Write 0 to exit menu\n");
     for (int i = 0; i < 5; i++) {
-        print_movie(show_five_movie_arr[i]);
-    }
+        print_info(show_five_movie_arr[i]);
+    }*/
+
+    select_movie(show_five_movie_arr, config);
 }
 
 
@@ -580,8 +588,6 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
     for (int i = 0; i < top_count && i < filtered_movie_index; i++) {
         top_movies[i] = all_movies[i];
     }
-    print_movie(top_movies[0]);
-    weight_genre(top_movies[0], config);
 }
 
 struct movie* movies_from_services(setting* config, struct movie movie[], int* filtered_movie_index) {
@@ -624,6 +630,7 @@ void weight_genre(struct movie movie, /*struct*/ setting *config)
 {
     int user_input = 2;
     do{
+    printf("Return to the program when you have watched the movie...\n");
     printf("Did you enjoy this movie?\n");
     printf("Type '1' for yes, '-1' for no and '0' for don'\n");
     user_input = scanf_for_int();
@@ -661,7 +668,6 @@ void subtract_weight(struct movie movie, setting *config)
     }
 }
 
-
 void add_weight(struct movie movie, setting *config)
 {
     int config_offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
@@ -683,3 +689,68 @@ void add_weight(struct movie movie, setting *config)
     } 
 }
 
+void select_movie(struct movie show_five_movie_arr[], setting *config)
+{
+    int i = 0;
+    int movie_pick = 0;
+    do{
+    printf("Type a movienumber to show information.\n\n");
+    for(int i = 0; i < 5; i++){
+        printf("Movie %d: '%s'\n", i+1, show_five_movie_arr[i].title);
+    }   
+    scanf(" %d", &movie_pick);
+    movie_pick -= 1;
+
+    i = print_info(show_five_movie_arr[movie_pick]);
+    }while(i == 0);
+
+    weight_genre(show_five_movie_arr[movie_pick], config);
+}   
+
+int print_info(struct movie movie)
+{
+    int user_input;
+    char *genre_array[] = {"Action", "Adventure","Drama", "Crime", 
+                            "Romance", "Fantasy", "Mystery", "Music", 
+                            "Sport", "Animation", "Biography", "History", 
+                            "Scifi", "War", "Family", "Thriller", "Horror", 
+                            "Comedy", "Western","Musical"};
+    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney +", 
+                            "TV2 Play", "SkyShowtime", "Filmstriben", "Viaplay", 
+                            "C more", "Amazon Prime", "Rakuten"};
+    
+    printf("Movie info:\n");
+    printf("Title: %s\n", movie.title);
+    printf("Year of release: %d\n",movie.year);
+    printf("PG-rating: %s\n", movie.pg);
+    printf("Runtime: %d\n", movie.runtime);
+    printf("IMDB rating: %d \n", movie.score);
+    printf("Resume: %s \n", movie.resume);
+    
+    printf("Genres:");
+    for(int i = 0; i < MAX_GENRES; i++){
+        if(movie.genre[i] == 1){
+            printf(" %s", genre_array[i]);
+        }
+    }
+    printf("\n");
+
+    printf("Avaiable on the following services:");
+    for(int i = 0; i < MAX_SERVICES; i++){
+        if(movie.services[i] == 1){
+            printf(" %s", genre_array[i]);
+        }
+    }
+    printf("\n");
+    do{
+    printf("Type 1 for watch or type 0 to return to recommendations.\n");
+    scanf(" %d", &user_input);
+    } while (user_input != 1 && user_input != 0);
+
+    if(user_input == 1){
+        return user_input;
+    }
+    else if(user_input == 0){
+        return user_input;
+    }
+}
