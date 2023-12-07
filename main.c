@@ -23,6 +23,7 @@
 #define ARRAY_MENU_LENGTH 4
 #define GENRE_COUNT 20
 #define DEBUG 0
+#define RESET_OPTION 0
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -70,8 +71,10 @@ void print_recommended_menu(struct movie top_movies[], int top_count, struct mov
 void subtract_weight(struct movie movie, setting *config);
 void add_weight(struct movie movie, setting *config);
 void weight_genre(struct movie movie, setting *config);
-int print_info(struct movie movie);
+int print_info(struct movie movie, setting *config);
 void select_movie(struct movie show_five_movie_arr[], setting *config);
+void explain(struct movie movie, setting *config, char *genre_array[]);
+
 void screen_clear();
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
@@ -557,8 +560,8 @@ void weight_genre(struct movie movie, /*struct*/ setting *config)
         screen_clear();
         printf("Return to the program when you have watched the movie...\n");
         printf("Did you enjoy this movie?\n");
-        printf(" 2  for yes\n");
         printf(" 1  for no\n");
+        printf(" 2  for yes\n");
         printf(" 0  if you don't know\n"); 
         user_input = scanf_for_int();
     }
@@ -637,17 +640,23 @@ void select_movie(struct movie show_five_movie_arr[], setting *config)
         for(int i = 0; i < 5; i++){
             printf("Movie %d: %s\n", i+1, show_five_movie_arr[i].title);
         }   
-        printf("\nSelect a movie to show information:\n");
-        scanf(" %d", &movie_pick);
+        printf("\nSelect a movie to show information (1-5) or 0 to return:\n");
+        movie_pick = scanf_for_int();
+        if(movie_pick == 0){
+            break;
+        }
         movie_pick -= 1;
 
-        i = print_info(show_five_movie_arr[movie_pick]);
+        i = print_info(show_five_movie_arr[movie_pick], config);
     }while(i == 0);
     
-    weight_genre(show_five_movie_arr[movie_pick], config);
-}   
+    screen_clear();
+    if(movie_pick > 0){
+        weight_genre(show_five_movie_arr[movie_pick], config);
+    }
+}
 
-int print_info(struct movie movie)
+int print_info(struct movie movie, setting *config)
 {
     int user_input;
     char *genre_array[] = {"Action", "Adventure","Drama", "Crime", 
@@ -655,43 +664,79 @@ int print_info(struct movie movie)
                             "Sport", "Animation", "Biography", "History", 
                             "Scifi", "War", "Family", "Thriller", "Horror", 
                             "Comedy", "Western","Musical"};
-    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney+", 
+    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney +", 
                             "TV2 Play", "SkyShowtime", "Filmstriben", "Viaplay", 
                             "C more", "Amazon Prime", "Rakuten"};
-    screen_clear();
-    printf("=== Movie info ===\n\n");
-    printf("Title:           %s\n", movie.title);
-    printf("Year of release: %d\n",movie.year);
-    printf("PG-rating:       %s\n", movie.pg);
-    printf("Runtime:         %d min\n", movie.runtime);
-    printf("Genre(s):       ");
-    for(int i = 0; i < MAX_GENRES; i++){
-        if(movie.genre[i] == 1){
-            printf(" %s", genre_array[i]);
-        }
-    }
-    printf("\n");
-    printf("IMDB rating:     %d\n\n", movie.score);
-    printf("Resume:\n%s\n\n", movie.resume);
-    
-    printf("Avaliable on the following services:\n");
-    for(int i = 0; i < MAX_SERVICES; i++){
-        if(movie.services[i] == 1){
-            printf(" --> %s\n", service_array[i]);
-        }
-    }
-    printf("\n");
     do{
-        printf("Type 1 to watch\n");
-        printf("Type 0 to return to recommendations.\n");
-        scanf(" %d", &user_input);
-    } while (user_input != 1 && user_input != 0);
+        screen_clear();
+        printf("=== Movie info ===\n\n");
+        printf("Title:           %s\n", movie.title);
+        printf("Year of release: %d\n",movie.year);
+        printf("PG-rating:       %s\n", movie.pg);
+        printf("Runtime:         %d\n", movie.runtime);
+        printf("Genre(s):       ");
+        for(int i = 0; i < MAX_GENRES; i++){
+            if(movie.genre[i] == 1){
+                printf(" %s", genre_array[i]);
+            }
+        }
+        printf("\n");
+        printf("IMDB rating:     %d\n\n", movie.score);
+        printf("Resume:\n%s\n\n", movie.resume);
+    
+        printf("Avaliable on the following services:\n");
+        for(int i = 0; i < MAX_SERVICES; i++){
+            if(movie.services[i] == 1){
+                printf(" --> %s\n", service_array[i]);
+            }
+        }
+        printf("\n");
+    
+            printf("Type 1 to watch\n");
+            printf("Type 2 to explain this recommendation\n");
+            printf("Type 0 to return to recommendations.\n");
+            user_input = scanf_for_int();
+        
+            if(user_input == 2){
+                explain(movie, config, genre_array);
+            }
+        }while (user_input > 1 || user_input < 0);
 
     if(user_input == 1){
         return user_input;
     }
-    else{
-        return 0;
-    }
+    return 0;
 }
 
+void explain(struct movie movie, setting *config, char *genre_array[])
+{
+    screen_clear();
+    int user_input;
+    printf(" === Recommendations Explanation ===\n");
+    printf("%swas recommended", movie.title); 
+    printf(" based on your genre preferences and/or previously watched titles.\n\n");
+    
+    printf("This movie had the following genre(s) with individual weighting(s):\n");
+    for(int i = 0; i < MAX_GENRES; i++){
+        if(movie.genre[i] == 1){
+            printf("%s: %d\n", genre_array[i], config[STREAM_SERVICE_COUNT + SETTING_COUNT + i].value);
+        }
+    }
+    printf("This means your collected genre score for this movie is: %.2f\n\n", movie.genre_score);
+
+    printf("The collected genre score was calculated with: ");
+    
+    
+    for(int i = STREAM_SERVICE_COUNT + RESET_OPTION; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++){
+        if(config[i].value == 1){  
+            printf(" %s \n", config[i].key);
+            break;
+        }
+    }
+
+    do{
+        printf("Enter 0 to return:\n");
+        user_input = scanf_for_int();
+    }while(user_input != 0); 
+    //if this is zero is shuld return to movie info page
+}

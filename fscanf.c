@@ -17,7 +17,7 @@ struct movie
     int score;
     char resume[1000];
     int services[11];
-    int genre_score;
+    double genre_score;
     int service_id;
 };
 
