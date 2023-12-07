@@ -568,7 +568,7 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
     int rand_one = (rand() % (movie_score_given - 3)) + 3;    
     int rand_two = (rand() % (movie_score_given - 3)) + 3;
 
-    while (rand_one == rand_two) {
+    while (rand_one == rand_two) {                         //checks if the two random movies are differet
         rand_one = (rand() % (movie_score_given - 3)) + 3;
     }
         
