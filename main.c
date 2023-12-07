@@ -13,7 +13,6 @@
 #include <math.h>
 #include <string.h>
 #include "fscanf.c"
-#include <math.h>
 
 // ###############################
 // ###### Constant Variables #####
