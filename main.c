@@ -21,7 +21,7 @@
 #define SETTING_COUNT 4
 #define ARRAY_MENU_LENGTH 4
 #define GENRE_COUNT 20
-#define DEBUG 0
+#define DEBUG 1
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -65,6 +65,10 @@ void reset_conf(setting * config);
 void get_recommendation(setting *config, struct movie all_movies[]);
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
 int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie);
+void subtract_weight(struct movie movie, setting *config);
+void add_weight(struct movie movie, setting *config);
+void weight_genre(struct movie movie, setting *config);
+
 void screen_clear();
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
@@ -527,6 +531,8 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
     for (int i = 0; i < top_count && i < MAX_MOVIES; i++) {
         top_movies[i] = all_movies[i];
     }
+    print_movie(top_movies[0]);
+    weight_genre(top_movies[0], config);
 }
 
 
@@ -560,6 +566,72 @@ void movies_from_services(setting* config, struct movie movie[]) {
     }
 }
 
+// ############################
+// ###### print functions #####
+// ############################
 
+// ######################
+// ###### Weighting #####
+// ######################
 
-/* Function for printing the recommendation */
+void weight_genre(struct movie movie, /*struct*/ setting *config)
+{
+    int user_input = 2;
+    do{
+    printf("Did you enjoy this movie?\n");
+    printf("Type '1' for yes, '-1' for no and '0' for don'\n");
+    user_input = scanf_for_int();
+    }
+    while(user_input < -1 && user_input > 1);
+
+    if(user_input == -1){
+        subtract_weight(movie, config);
+    }
+
+    else if(user_input == 1){
+        add_weight(movie, config);
+    }
+    write_config(config);
+}
+
+void subtract_weight(struct movie movie, setting *config)
+{
+    int config_offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
+    
+    for(int i = 0; i < MAX_GENRES; i++){
+        if(movie.genre[i] == 1){
+            if((config[config_offset + i].value > 6 && config[config_offset + i].value <= 10) || 
+                (config[config_offset + i].value < 5 && config[config_offset + i].value > 0)){
+
+                config[config_offset + i].value -= 1;
+            }
+            else if(config[config_offset + i].value == 1){
+                continue;
+            }
+            else{
+                config[config_offset + i].value -= 2;
+            }
+        }
+    }
+}
+
+void add_weight(struct movie movie, setting *config)
+{
+    int config_offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
+    
+    for(int i = 0; i < MAX_GENRES; i++){
+        if(movie.genre[i] == 1){
+            if((config[config_offset + i].value > 5 && config[config_offset + i].value < 10) || 
+                (config[config_offset + i].value < 4 && config[config_offset + i].value > 0)){
+            
+                config[config_offset + i].value += 1 ;
+            }
+            else if(config[config_offset + i].value == 10){
+                continue;   
+            }
+            else{
+                config[config_offset + i].value += 2;
+            }  
+        }
+    } 
+}
