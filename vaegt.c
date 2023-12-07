@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "main.c"
 
 #define STREAM_SERVICE_COUNT 11
 #define SETTING_COUNT 4
