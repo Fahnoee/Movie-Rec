@@ -2,21 +2,22 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAX_MOVIES 90
+#define MAX_MOVIES 395
 #define MAX_GENRES 20
-#define MAX_SERVICES 12
+#define MAX_SERVICES 11
 
 struct movie
 {
     int id;
-    char title[50];
+    char title[100];
     int year;
     char pg[20];
     int runtime;
     int genre[20]; //måske mindre
     int score;
-    char resume[250];
+    char resume[1000];
     int services[11];
+    int genre_score;
 };
 
 void print_movie(struct movie movie);
