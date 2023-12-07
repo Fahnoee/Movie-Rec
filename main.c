@@ -12,11 +12,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "fscanf.c"
-
-#include <math.h>
 #include <time.h>
-
+#include "fscanf.c"
 
 // ###############################
 // ###### Constant Variables #####
@@ -51,7 +48,7 @@ typedef struct
 void get_recommendation(setting * config, /*int genre[],*/ struct movie movie[]/*, int adult_movies*/);
 void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
 void change_preferences(setting* config);
-struct movie* movies_from_services(setting* config, struct movie movie[], int* filtered_movie_index);
+void find_random_movies_not_in_list(setting* config, struct movie movie[]);
 void change_genre_config(setting *config);
 void welcome(setting *config);
 void adjust_s_services(setting * config);
@@ -67,7 +64,7 @@ int change_setting_value(setting *config, int setting);
 int scanf_for_int(void);
 void reset_conf(setting * config);
 void get_recommendation(setting *config, struct movie all_movies[]);
-void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count, int filtered_movie_index);
+void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
 int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie);
 void print_recommended_menu(struct movie top_movies[], int top_count, struct movie movie_watchable[], int watchable_count, setting *config);
 void subtract_weight(struct movie movie, setting *config);
@@ -75,8 +72,6 @@ void add_weight(struct movie movie, setting *config);
 void weight_genre(struct movie movie, setting *config);
 int print_info(struct movie movie);
 void select_movie(struct movie show_five_movie_arr[], setting *config);
-
-
 void screen_clear();
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
@@ -86,9 +81,7 @@ void screen_clear();
 //////////////
 int main(void)
 {
-    // Set the random seed to time
     srand(time(NULL));
-    // Create an array of structs for the movies
     struct movie movie_array[MAX_MOVIES];
 
     FILE *f = fopen("movies.txt", "r");
@@ -149,14 +142,13 @@ int main(void)
     int running = 1;
     
     screen_clear();
-    
     while (running) {
         printMenu(config, movie_array);
     }
-
+    
     return 0;
 }
-
+// ############MAIN-END###################
 void screen_clear() {
     if (DEBUG == 0)
         system(CLEAR_SCREEN);
@@ -269,7 +261,7 @@ void reset_conf(setting * config) {
     if (config[STREAM_SERVICE_COUNT + 1].value == 1) {
         for (int i = 0; i < lines_in_config; i++) {
             if (i == 11){ 
-                config[i].value = 0;    // 
+                config[i].value = 0;    
                 continue;               //skips the line where reset config has been written
             }
             config[i].value = 1;
@@ -414,7 +406,7 @@ int toggle_setting(setting * config, int offset, int setting)
 // ###### File handling functions #####
 // ####################################
 
-// Function for creating a config, used to save available streaming servives
+// Function for creating a config, used to save available streaming services
 void write_config(setting *key_value_pair)
 {
     FILE *config_file;                    // Creates pointer to file
@@ -477,17 +469,10 @@ void get_new_recommendation()
 /* Function for getting a recommendation */
 // The main recommendation function
 void get_recommendation(setting *config, struct movie all_movies[]) {
-    struct movie top_movies[3];
-    int filtered_movie_index = 0;
-    struct movie* available_movies = movies_from_services(config, all_movies, &filtered_movie_index);
-    filter_and_rank_movies(config, available_movies, top_movies, 3, filtered_movie_index);
+    struct movie top_movies[5];
+    struct movie random_movies[2];
+    struct movie final_five_movies[5];
     
-    // Print the recommendation menu
-    //print_recommended_menu(top_movies, 3, available_movies, filtered_movie_index, config);
-
-    // Free the dynamically allocated memory
-    //free(available_movies);
-
     select_movie(all_movies, config);
 }
 
@@ -495,43 +480,22 @@ void get_recommendation(setting *config, struct movie all_movies[]) {
 void print_recommended_menu(struct movie top_movies[], int top_count, struct movie movie_watchable[], int watchable_count, setting *config) {
     struct movie show_five_movie_arr[5];
     
-    // Copy top movies
-    for (int i = 0; i < top_count; i++) {
-        show_five_movie_arr[i] = top_movies[i];
+    filter_and_rank_movies(config, all_movies, top_movies, 3);
+    //find_random_movies_not_in_list(config, all_movies);
+    //add_movies_together(top_movies, random_movies, final_five_movies, all_movies, config);
+
+
+    printf("\nTop 3 Recommended Movies:\n");
+    for (int i = 0; i < 3; i++) {
+        print_movie(top_movies[i]);
     }
 
-    // Add random movies, avoiding duplicates with top movies
-    int randomIndex;
-    for (int i = top_count; i < 5; ) {
-        randomIndex = 50;
-        if (is_movie_already_selected(top_movies, top_count, movie_watchable[randomIndex])) {
-            show_five_movie_arr[i] = movie_watchable[randomIndex];
-            i++;
-        }
+    printf("\nRANDOME MOVIES!!!:\n");
+    for (int i = 3; i < 5; i++) {
+        print_movie(top_movies[i]);
     }
-
-    // Print the movies
-    /*printf("===== Pick a movie =====\n Write 0 to exit menu\n");
-    for (int i = 0; i < 5; i++) {
-        print_info(show_five_movie_arr[i]);
-    }*/
 
 }
-
-
-// Helper function to check if a movie is already selected
-int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie) {
-    for (int i = 0; i < top_count + 1; i++) {
-        if (top_movies[i].service_id == movie.service_id) {
-            return 0; // Movie is already selected
-        }
-    }
-    return 1; // Movie is not selected
-}
-
-
-
-
 
 
 
@@ -547,27 +511,29 @@ int compareMovies(const void *a, const void *b) {
         return 1;   // B comes before A
     }
 
-    // If genre scores are equal, compare movie titles
-    int titleComparison = strcmp((*movieA).title, (*movieB).title);
-
-    return titleComparison;
+    return 0;
 }
 
 // Helper function to filter and rank movies 
 
-void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count, int filtered_movie_index)
+void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count) 
 {
     // Calculate scores for each movie
-    for (int i = 0; i < filtered_movie_index; i++) {
+    int movie_score_given = 0;
+    for (int i = 0; i < MAX_MOVIES; i++) {
         all_movies[i].genre_score = 0;
         int genre_count = 0;
         // Check if the movie is available on any active streaming service
+        for (int j = 0; j < STREAM_SERVICE_COUNT; j++) {
+            if (config[j].value == 1 && all_movies[i].services[j] == 1) {
+                movie_score_given++;
                 // Calculate score based on genre weights
                 for (int k = 0; k < GENRE_COUNT; k++) {
                     if (all_movies[i].genre[k] == 1) {
                         int genre_weight = config[STREAM_SERVICE_COUNT + SETTING_COUNT + k].value;
                         all_movies[i].genre_score += genre_weight;
                         genre_count++;
+                        
                     }
                 }
                 all_movies[i].genre_score /= sqrt((double)genre_count);
@@ -575,44 +541,27 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
                 // all_movies[i].genre_score += BALANCING_FACTOR * (genre_count - 1);
 
                 break; // No need to check other streaming services
-            
-        }
-
-    // Use qsort to sort movies based on scores
-    qsort(all_movies, filtered_movie_index, sizeof(struct movie), compareMovies);
-
-    // Copy the top movies to the result array
-    for (int i = 0; i < top_count && i < filtered_movie_index; i++) {
-        top_movies[i] = all_movies[i];
-    }
-}
-
-struct movie* movies_from_services(setting* config, struct movie movie[], int* filtered_movie_index) {
-    *filtered_movie_index = 0;  // Initialize the index
-
-    // Dynamically allocate memory for movies_watchable
-    struct movie* movies_watchable = (struct movie*)malloc(MAX_MOVIES * sizeof(struct movie));
-    if (movies_watchable == NULL) {
-        // Handle memory allocation failure
-        fprintf(stderr, "Memory allocation failed for movies_watchable.\n");
-        return NULL;
-    }
-
-    // Iterate through movies and services to filter watchable movies
-    for (int movie_index = 0; movie_index < MAX_MOVIES; movie_index++) {
-        for (int service_index = 0; service_index < STREAM_SERVICE_COUNT; service_index++) {
-            if (config[service_index].value == 1 && movie[movie_index].services[service_index] == 1) {
-                // Movie is available on the selected service, add it to watchable movies
-                movies_watchable[*filtered_movie_index] = movie[movie_index];
-                movies_watchable[*filtered_movie_index].service_id = service_index;  // Assigning service ID
-                (*filtered_movie_index)++;
-                break;  // Break the inner loop if the movie is available on any of the selected services
             }
         }
     }
 
-    // Return the dynamically allocated array
-    return movies_watchable;
+    // Use qsort to sort movies based on scores
+    qsort(all_movies, MAX_MOVIES, sizeof(struct movie), compareMovies);
+
+    // Copy the top movies to the result array
+    for (int i = 0; i < top_count; i++) {
+        top_movies[i] = all_movies[i];
+    }
+
+    
+    int rand_one = (rand() % (movie_score_given - 3)) + 3;    
+    int rand_two = (rand() % (movie_score_given - 3)) + 3;
+
+    while (rand_one == rand_two) {                         //checks if the two random movies are differet
+        rand_one = (rand() % (movie_score_given - 3)) + 3;
+    }
+    top_movies[3] = all_movies[rand_one];
+    top_movies[4] = all_movies[rand_two];
 }
 
 // ############################
@@ -669,7 +618,10 @@ void subtract_weight(struct movie movie, setting *config)
                 config[config_offset + i].value -= 1;
             }
         }
+
     }
+
+        
 }
 
 void add_weight(struct movie movie, setting *config)
@@ -764,3 +716,4 @@ int print_info(struct movie movie)
         return 0;
     }
 }
+
