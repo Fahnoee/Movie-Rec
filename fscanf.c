@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAX_MOVIES 395
+#define MAX_MOVIES 398
 #define MAX_GENRES 20
 #define MAX_SERVICES 11
 
