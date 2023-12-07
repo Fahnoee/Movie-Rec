@@ -21,6 +21,7 @@
 #define SETTING_COUNT 4
 #define ARRAY_MENU_LENGTH 4
 #define GENRE_COUNT 20
+#define DEBUG 0
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -64,7 +65,7 @@ void reset_conf(setting * config);
 void get_recommendation(setting *config, struct movie all_movies[]);
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count);
 int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie);
-
+void screen_clear();
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
@@ -132,13 +133,18 @@ int main(void)
 
     int running = 1;
     
-    system(CLEAR_SCREEN);
+    screen_clear();
     
     while (running) {
         printMenu(config, movie_array);
     }
 
     return 0;
+}
+
+void screen_clear() {
+    if (DEBUG == 0)
+        system(CLEAR_SCREEN);
 }
 
 
@@ -192,7 +198,7 @@ void printMenu(setting * config, struct movie movie_array[])
       break;
     
     default:
-      system(CLEAR_SCREEN);
+      screen_clear();
       printf("\nInvalid number, you can only use numbers represented by the menu: \n"); 
       break;
     }
@@ -225,7 +231,7 @@ void adjust_s_services(setting * config) {
     int user_input;
 
     while (1) {
-        system(CLEAR_SCREEN);
+        screen_clear();
         print_config_items(config, 0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT, 0);
 
         // Ask the user which streaming service they want to activate/deactivate
@@ -236,7 +242,7 @@ void adjust_s_services(setting * config) {
 
         // Toggle the setting and break the loop if the result is 0
         if (toggle_setting(config, 0, user_input) == 0) {
-            system(CLEAR_SCREEN);
+            screen_clear();
             break;
         }
     }
@@ -255,7 +261,7 @@ void reset_conf(setting * config) {
             }
             config[i].value = 1;
         }
-        system(CLEAR_SCREEN);
+        screen_clear();
         write_config(config);
         printf("\nAll of your settings have been reset :) \n");
     }
@@ -264,7 +270,7 @@ void reset_conf(setting * config) {
 // Function for quiting the program
 void quit_function()
 {
-    system(CLEAR_SCREEN);
+    screen_clear();
     printf("You have choosen to exit our program, we hope you have a good\n");
     printf("time with the recommended movie  :D\n");
     printf("Your choice of streaming services have been saved \n");
@@ -277,7 +283,7 @@ void change_preferences(setting * config) {
     int setting_offset = STREAM_SERVICE_COUNT;
     
     while (1) {
-        system(CLEAR_SCREEN);
+        screen_clear();
         print_config_items(config , setting_offset, "===== Settings Menu =====\n Write 0 to exit menu", SETTING_COUNT, 0);
 
         printf("Enter number: ");
@@ -290,7 +296,7 @@ void change_preferences(setting * config) {
 
         if ((toggle_setting(config, setting_offset, user_input) == 0) && (user_input != 1)) {
             printf("Exiting settings menu.\n");
-            system(CLEAR_SCREEN);
+            screen_clear();
             break;
         }
     }
@@ -308,14 +314,14 @@ void change_genre_config(setting * config)
         int user_input;
         
         
-        system(CLEAR_SCREEN);
+        screen_clear();
         print_config_items(config , setting_offset, "===== Genre Menu =====\n Write 0 to exit menu", GENRE_COUNT, 1);
 
         printf("Select Genre: ");
         user_input = scanf_for_int();
         if (change_setting_value(config, user_input) == 0) {
             printf("Exiting setting's menu.\n");
-            system(CLEAR_SCREEN);
+            screen_clear();
             break;
         } 
     }
