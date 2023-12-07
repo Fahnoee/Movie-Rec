@@ -480,9 +480,17 @@ int compareMovies(const void *a, const void *b) {
     struct movie *movieA = (struct movie *)a;
     struct movie *movieB = (struct movie *)b;
 
-    if (movieA->genre_score > movieB->genre_score) return -1;
-    else if (movieA->genre_score < movieB->genre_score) return 1;
-    return 0;
+    // Compare genre scores
+    if ((*movieA).genre_score > (*movieB).genre_score) {
+        return -1;  // A comes before B
+    } else if ((*movieA).genre_score < (*movieB).genre_score) {
+        return 1;   // B comes before A
+    }
+
+    // If genre scores are equal, compare movie titles
+    int titleComparison = strcmp((*movieA).title, (*movieB).title);
+
+    return titleComparison;
 }
 
 // Helper function to filter and rank movies 
