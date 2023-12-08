@@ -259,6 +259,19 @@ void adjust_s_services(setting * config) {
 // Reset conf function
 void reset_conf(setting * config) {
     int lines_in_config = STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT;
+        for (int i = 0; i < lines_in_config; i++) {
+        if (i == 11){ 
+            config[i].value = 0;    
+            continue;               //skips the line where reset config has been written
+        } else if (i >= STREAM_SERVICE_COUNT + SETTING_COUNT && i < lines_in_config) {
+            config[i].value = 5;
+        } else {
+            config[i].value = 1;
+        }
+        screen_clear();
+        write_config(config);
+        printf("\nAll of your settings have been reset :) \n");
+    }
     //for streamingservices
     for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
         config[i].value = 1;
