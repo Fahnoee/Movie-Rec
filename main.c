@@ -57,13 +57,11 @@ void quit_function();
 void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
 void read_config(setting *config);
-void reset_conf(setting * config);
 int toggle_setting(setting * config, int offset, int setting);
 int get_value_from_key(setting *config, char *key);
 int change_setting_value(setting *config, int setting);
 int scanf_for_int(void);
 void reset_conf(setting * config);
-void get_recommendation(setting *config, struct movie all_movies[]);
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
 int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie);
 void print_recommended_menu(struct movie top_movies[], int top_count, struct movie movie_watchable[], int watchable_count, setting *config);
@@ -260,32 +258,24 @@ void adjust_s_services(setting * config) {
 void reset_conf(setting * config) {
     int lines_in_config = STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT;
         for (int i = 0; i < lines_in_config; i++) {
-        if (i == 11){ 
-            config[i].value = 0;    
-            continue;               //skips the line where reset config has been written
-        } else if (i >= STREAM_SERVICE_COUNT + SETTING_COUNT && i < lines_in_config) {
+        if (i == 11){ // reset settings
+            config[i].value = 0;
+        } else if (i >= STREAM_SERVICE_COUNT && i < STREAM_SERVICE_COUNT + SETTING_COUNT) { // reset scaling
+            if (i == 12) {
+                config[i].value = 1;
+            } else {
+                config[i].value = 0;
+            }
+            
+        } else if (i >= STREAM_SERVICE_COUNT + SETTING_COUNT && i < lines_in_config) { // reset genre
             config[i].value = 5;
-        } else {
+        } else {  // reset streaming services
             config[i].value = 1;
         }
         screen_clear();
         write_config(config);
         printf("\nAll of your settings have been reset :) \n");
     }
-    //for streamingservices
-    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
-        config[i].value = 1;
-    }
-    //for settings
-    for (int i = STREAM_SERVICE_COUNT; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
-        config[i].value = 0;
-        config[(STREAM_SERVICE_COUNT + 1)].value = 1;
-    }
-    //for genres
-    for (int i = STREAM_SERVICE_COUNT + SETTING_COUNT; i < lines_in_config; i++) {
-        config[i].value = 5;
-    }
-    
     
     screen_clear();
     write_config(config);
@@ -320,22 +310,21 @@ void change_preferences(setting * config) {
             break;
         }
 
-        if (user_input == 2){
-            config[12].value = 1;
-            config[13].value = 0;
-            config[14].value = 0;
+        if (user_input >= 2 && user_input <= 4) {
+            // Set values from STREAM_SERVICE_COUNT + 1 to STREAM_SERVICE_COUNT + SETTING_COUNT to 0
+            for (int i = STREAM_SERVICE_COUNT + 1; i <= STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
+                config[i].value = 0;
+            }
+
+            // Set value number user_input + STREAM_SERVICE_COUNT to 1 
+            // Minus 1 is to account for the array starting at 0
+            config[user_input + STREAM_SERVICE_COUNT - 1 ].value = 1;            
+            printf("Exiting settings menu.\n");
+            screen_clear();
             break;
-        } else if (user_input == 3){
-            config[12].value = 0;
-            config[13].value = 1;
-            config[14].value = 0;
-            break;
-        } else if (user_input == 4){
-            config[12].value = 0;
-            config[13].value = 0;
-            config[14].value = 1;
-            break;            
         }
+
+
         
 
         if ((toggle_setting(config, setting_offset, user_input) == 0) && (user_input != 1)) {
@@ -411,21 +400,22 @@ int change_setting_value(setting * config, int setting) {
     return 1;
 }
 
-// Toggles a value in the config array of structs
+// Toggles a value in the config array of structs or if in settings, toggles a value and sets
+// the rest to 0 if the value to toggle isnt the first in the setting section of struct
 int toggle_setting(setting * config, int offset, int setting)
 {
     if (setting == 0) {
         return 0;
     }
-    
-    
-    if (setting >= 1 && setting <= STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT) {
+
+
+    if (setting >= 1 && setting <= STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT)
+    {
         setting = (setting + offset) - 1; // Needs to be 1 less then input due to arrays starting at 0
-                                          // change the value of the streaming service
+                                            // change the value of the streaming service
         if (config[setting].value == 1)
         {
             config[setting].value = 0;
-            
         }
         else
         {
@@ -433,11 +423,14 @@ int toggle_setting(setting * config, int offset, int setting)
         }
         return 1;
     }
-    else {
+    else
+    {
         printf("Invalid input! We try again\n");
         return 1;
     }
 }
+
+
 
 // ####################################
 // ###### File handling functions #####
