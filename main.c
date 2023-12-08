@@ -45,33 +45,33 @@ typedef struct
 // #######################
 // ###### Prototypes #####
 // #######################
-void get_recommendation(setting * config, /*int genre[],*/ struct movie movie[]/*, int adult_movies*/);
-void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
-void change_preferences(setting* config);
-void find_random_movies_not_in_list(setting* config, struct movie movie[]);
-void change_genre_config(setting *config);
-void welcome(setting *config);
-void adjust_s_services(setting * config);
-void printMenu(setting *config, struct movie movies_array[]);
-void quit_function();
-void write_config(setting *key_value_pair);
-void check_file_opening(FILE *f);
-void read_config(setting *config);
-int toggle_setting(setting * config, int offset, int setting);
-int get_value_from_key(setting *config, char *key);
-int change_setting_value(setting *config, int setting);
-int scanf_for_int(void);
-void reset_conf(setting * config);
-void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
-int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie);
-void print_recommended_menu(struct movie top_movies[], int top_count, struct movie movie_watchable[], int watchable_count, setting *config);
-void subtract_weight(struct movie movie, setting *config);
 void add_weight(struct movie movie, setting *config);
-void weight_genre(struct movie movie, setting *config);
-int print_info(struct movie movie);
-void select_movie(struct movie show_five_movie_arr[], setting *config);
+void adjust_s_services(setting * config);
+void change_genre_config(setting *config);
+void change_preferences(setting* config);
+int change_setting_value(setting *config, int setting);
+void check_file_opening(FILE *f);
 double choice_of_scaling(setting *config, int genre_count);
+void find_random_movies_not_in_list(setting* config, struct movie movie[]);
+void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count);
+void get_recommendation(setting * config, struct movie movie[]);
+int get_value_from_key(setting *config, char *key);
+int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie);
+void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
+void printMenu(setting *config, struct movie movies_array[]);
+void print_recommended_menu(struct movie top_movies[], int top_count, struct movie movie_watchable[], int watchable_count, setting *config);
+int print_info(struct movie movie);
+void quit_function();
+void read_config(setting *config);
+void reset_conf(setting * config);
 void screen_clear();
+void select_movie(struct movie show_five_movie_arr[], setting *config);
+void subtract_weight(struct movie movie, setting *config);
+int scanf_for_int(void);
+int toggle_setting(setting * config, int offset, int setting);
+void welcome(setting *config);
+void weight_genre(struct movie movie, setting *config);
+void write_config(setting *key_value_pair);
 
 // void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
