@@ -259,26 +259,25 @@ void adjust_s_services(setting * config) {
 // Reset conf function
 void reset_conf(setting * config) {
     int lines_in_config = STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT;
-    if (config[STREAM_SERVICE_COUNT + 1].value == 1) {
-        //for streamingservices
-        for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
-            config[i].value = 1;
-        }
-        //for settings
-        for (int i = STREAM_SERVICE_COUNT; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
-            config[i].value = 0;
-            config[(STREAM_SERVICE_COUNT + 1)].value = 1;
-        }
-        //for genres
-        for (int i = STREAM_SERVICE_COUNT + SETTING_COUNT; i < lines_in_config; i++) {
-            config[i].value = 5;
-        }
-        
-        
-        screen_clear();
-        write_config(config);
-        printf("\nAll of your settings have been reset :) \n");
+    //for streamingservices
+    for (int i = 0; i < STREAM_SERVICE_COUNT; i++) {
+        config[i].value = 1;
     }
+    //for settings
+    for (int i = STREAM_SERVICE_COUNT; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
+        config[i].value = 0;
+        config[(STREAM_SERVICE_COUNT + 1)].value = 1;
+    }
+    //for genres
+    for (int i = STREAM_SERVICE_COUNT + SETTING_COUNT; i < lines_in_config; i++) {
+        config[i].value = 5;
+    }
+    
+    
+    screen_clear();
+    write_config(config);
+    printf("\nAll of your settings have been reset :) \n");
+
 }    
 
 // Function for quitting the program
