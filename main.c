@@ -694,7 +694,7 @@ int print_info(struct movie movie, setting *config, int movie_pick)
         printf("Title:           %s\n", movie.title);
         printf("Year of release: %d\n",movie.year);
         printf("PG-rating:       %s\n", movie.pg);
-        printf("Runtime:         %d\n", movie.runtime);
+        printf("Runtime:         %d min\n", movie.runtime);
         printf("Genre(s):       ");
         for(int i = 0; i < MAX_GENRES; i++){
             if(movie.genre[i] == 1){
@@ -702,7 +702,7 @@ int print_info(struct movie movie, setting *config, int movie_pick)
             }
         }
         printf("\n");
-        printf("IMDB rating:     %d\n\n", movie.score);
+        printf("IMDB rating:     %d/100\n\n", movie.score);
         printf("Resume:\n%s\n\n", movie.resume);
     
         printf("Avaliable on the following services:\n");
