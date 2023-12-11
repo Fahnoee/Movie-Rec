@@ -588,7 +588,7 @@ void weight_genre(struct movie movie, /*struct*/ setting *config)
         printf("0:  Don't know\n"); 
         user_input = scanf_for_int();
     }
-    while(user_input < 0 && user_input > 2);
+    while(user_input < 0 || user_input > 2);
     screen_clear();
     if(user_input == 2){
         subtract_weight(movie, config);
