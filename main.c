@@ -583,18 +583,18 @@ void weight_genre(struct movie movie, /*struct*/ setting *config)
         screen_clear();
         printf("Return to the program when you have watched the movie...\n");
         printf("Did you enjoy this movie?\n");
-        printf("1:  no\n");
-        printf("2:  yes\n");
-        printf("0:  don't know\n"); 
+        printf("1:  Yes\n");
+        printf("2:  No\n");
+        printf("0:  Don't know\n"); 
         user_input = scanf_for_int();
     }
     while(user_input < 0 && user_input > 2);
     screen_clear();
-    if(user_input == 1){
+    if(user_input == 2){
         subtract_weight(movie, config);
     }
 
-    else if(user_input == 2){
+    else if(user_input == 1){
         add_weight(movie, config);
     }
     write_config(config);
