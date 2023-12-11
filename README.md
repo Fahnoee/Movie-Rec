@@ -25,6 +25,7 @@ This C program is designed to be the best movie recommender in the world. It inc
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 #include "fscanf.c"
 ```
 
