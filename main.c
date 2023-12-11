@@ -179,7 +179,7 @@ void printMenu(setting * config, struct movie movie_array[])
     printf("1: Get a recommendation\n");
     printf("2: Adjust your streaming services\n");
     printf("3: Change genre weights\n");
-    printf("4: Change preferences\n");
+    printf("4: Settings menu\n");
     printf("0: EXIT\n");
 
     // Ask the user to select a menu option 
@@ -303,7 +303,7 @@ void change_preferences(setting * config) {
     while (1) {
         screen_clear();
         print_config_items(config , setting_offset, "===== Settings Menu =====", SETTING_COUNT, 0);
-        printf("  0: Exit menu");
+        printf("  0: Exit menu\n");
 
         printf("Enter number: ");
         user_input = scanf_for_int();
