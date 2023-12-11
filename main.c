@@ -114,9 +114,9 @@ int main(void)
         {"Rakuten", 1},
         // Other settings
         {"Reset all", 0},
-        {"Setting 2", 1},
-        {"Setting 3", 1},
-        {"Setting 4", 1},
+        {"Square root scaling", 1},
+        {"Linear scaling", 0},
+        {"Logarithmic scaling", 0},
         // Genres
         {"Action", 1},
         {"Adventure", 1},
@@ -261,19 +261,28 @@ void adjust_s_services(setting * config) {
 // Reset conf function
 void reset_conf(setting * config) {
     int lines_in_config = STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT;
-    if (config[STREAM_SERVICE_COUNT + 1].value == 1) {
         for (int i = 0; i < lines_in_config; i++) {
-            if (i == 11){ 
-                config[i].value = 0;    
-                continue;               //skips the line where reset config has been written
+        if (i == 11){ // reset settings
+            config[i].value = 0;
+        } else if (i >= STREAM_SERVICE_COUNT && i < STREAM_SERVICE_COUNT + SETTING_COUNT) { // reset scaling
+            if (i == 12) {
+                config[i].value = 1;
+            } else {
+                config[i].value = 0;
             }
+            
+        } else if (i >= STREAM_SERVICE_COUNT + SETTING_COUNT && i < lines_in_config) { // reset genre
+            config[i].value = 5;
+        } else {  // reset streaming services
             config[i].value = 1;
         }
-        screen_clear();
-        write_config(config);
-        printf("\nAll of your settings have been reset :) \n");
     }
-}    
+    
+    screen_clear();
+    write_config(config);
+    printf("\nAll of your settings have been reset :) \n");
+
+}
 
 // Function for quitting the program
 void quit_function()
@@ -286,13 +295,15 @@ void quit_function()
 }
 
 // Change preferences menu printing and toggling
+// Change preferences menu printing and toggling
 void change_preferences(setting * config) {
     int user_input;
     int setting_offset = STREAM_SERVICE_COUNT;
     
     while (1) {
         screen_clear();
-        print_config_items(config , setting_offset, "===== Settings Menu =====\n Write 0 to exit menu", SETTING_COUNT, 0);
+        print_config_items(config , setting_offset, "===== Settings Menu =====", SETTING_COUNT, 0);
+        printf("  0: Exit menu");
 
         printf("Enter number: ");
         user_input = scanf_for_int();
@@ -302,6 +313,19 @@ void change_preferences(setting * config) {
             break;
         }
 
+        if (user_input >= 2 && user_input <= 4) {
+            // Set values from STREAM_SERVICE_COUNT + 1 to STREAM_SERVICE_COUNT + SETTING_COUNT to 0
+            for (int i = STREAM_SERVICE_COUNT + 1; i <= STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
+                config[i].value = 0;
+            }
+
+            // Set value number user_input + STREAM_SERVICE_COUNT to 1 
+            // Minus 1 is to account for the array starting at 0
+            config[user_input + STREAM_SERVICE_COUNT - 1 ].value = 1;            
+            printf("Exiting settings menu.\n");
+            screen_clear();
+            break;
+        }
         if ((toggle_setting(config, setting_offset, user_input) == 0) && (user_input != 1)) {
             printf("Exiting settings menu.\n");
             screen_clear();
@@ -310,7 +334,6 @@ void change_preferences(setting * config) {
     }
     write_config(config);
 }
-
 
 // sub menu for changing genre config
 void change_genre_config(setting * config) 
@@ -340,9 +363,9 @@ void print_config_items(setting * config, int offset, const char* header, int pr
     if (valueBool == 0) {
         for (int i = 0; i < print_array_length; i++) {
             if (config[i + offset].value == 1) {
-                printf("%3d: %-13s   [x]\n", i + 1, config[i + offset].key);
+                printf("%3d: %-21s   [x]\n", i + 1, config[i + offset].key);
             } else {
-                printf("%3d: %-13s   [ ]\n", i + 1, config[i + offset].key);
+                printf("%3d: %-21s   [ ]\n", i + 1, config[i + offset].key);
             }
         }
     } else if (valueBool == 1) {
@@ -651,7 +674,7 @@ void select_movie(struct movie show_five_movie_arr[], setting *config)
     }while(i == 0);
     
     screen_clear();
-    if(movie_pick > 0){
+    if(movie_pick >= 0){
         weight_genre(show_five_movie_arr[movie_pick], config);
     }
 }
@@ -664,7 +687,7 @@ int print_info(struct movie movie, setting *config)
                             "Sport", "Animation", "Biography", "History", 
                             "Scifi", "War", "Family", "Thriller", "Horror", 
                             "Comedy", "Western","Musical"};
-    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney +", 
+    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney+", 
                             "TV2 Play", "SkyShowtime", "Filmstriben", "Viaplay", 
                             "C more", "Amazon Prime", "Rakuten"};
     do{
@@ -691,16 +714,17 @@ int print_info(struct movie movie, setting *config)
             }
         }
         printf("\n");
+        printf("======================================\n");
+        printf("Type 1 to watch\n");
+        printf("Type 2 to explain this recommendation\n");
+        printf("Type 0 to return to recommendations\n");
+        printf("======================================\n");
+        user_input = scanf_for_int();
     
-            printf("Type 1 to watch\n");
-            printf("Type 2 to explain this recommendation\n");
-            printf("Type 0 to return to recommendations.\n");
-            user_input = scanf_for_int();
-        
-            if(user_input == 2){
-                explain(movie, config, genre_array);
-            }
-        }while (user_input > 1 || user_input < 0);
+        if(user_input == 2){
+            explain(movie, config, genre_array);
+        }
+    }while (user_input > 1 || user_input < 0);
 
     if(user_input == 1){
         return user_input;
