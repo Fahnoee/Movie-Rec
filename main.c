@@ -324,7 +324,6 @@ void change_preferences(setting * config) {
             config[user_input + STREAM_SERVICE_COUNT - 1 ].value = 1;            
             printf("Exiting settings menu.\n");
             screen_clear();
-            break;
         }
         if ((toggle_setting(config, setting_offset, user_input) == 0) && (user_input != 1)) {
             printf("Exiting settings menu.\n");
