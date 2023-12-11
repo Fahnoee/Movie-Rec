@@ -668,14 +668,13 @@ void select_movie(struct movie show_five_movie_arr[], setting *config)
         if(movie_pick == 0){
             break;
         }
-        movie_pick -= 1;
 
-        i = print_info(show_five_movie_arr[movie_pick], config, movie_pick);
+        i = print_info(show_five_movie_arr[movie_pick - 1], config, (movie_pick - 1));
     }while(i == 0);
     
     screen_clear();
-    if(movie_pick >= 0){
-        weight_genre(show_five_movie_arr[movie_pick], config);
+    if(movie_pick > 0){
+        weight_genre(show_five_movie_arr[movie_pick - 1], config);
     }
 }
 
