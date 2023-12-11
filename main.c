@@ -186,11 +186,9 @@ void printMenu(setting * config, struct movie movie_array[])
     printf("Enter a number: "); 
     int user_input = scanf_for_int();
         
-    /*int wanted_genre[20] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};*/ //fiktiv indtil genre er lavet
-
     switch (user_input) {
     case 1:
-      get_recommendation(config, /*wanted_genre,*/ movie_array/*, 1*/);
+      get_recommendation(config, movie_array);
       break;
     case 2:
       adjust_s_services(config);
@@ -357,7 +355,8 @@ void change_genre_config(setting * config)
 
 
 // Function for printing what is available at the moment
-void print_config_items(setting * config, int offset, const char* header, int print_array_length, int valueBool) {
+void print_config_items(setting * config, int offset, const char* header, int print_array_length, int valueBool) 
+{
     printf("%s:\n", header);
     if (valueBool == 0) {
         for (int i = 0; i < print_array_length; i++) {
@@ -376,7 +375,8 @@ void print_config_items(setting * config, int offset, const char* header, int pr
 
 
 // changes a value in the config array of structs
-int change_setting_value(setting * config, int setting) {
+int change_setting_value(setting * config, int setting) 
+{
     int offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
     int user_input;
 
@@ -493,13 +493,12 @@ void get_new_recommendation()
 
 /* Function for getting a recommendation */
 // The main recommendation function
-void get_recommendation(setting *config, struct movie all_movies[]) {
+void get_recommendation(setting *config, struct movie all_movies[]) 
+{
     struct movie top_movies[5];
     filter_and_rank_movies(config, all_movies, top_movies, 5);
     select_movie(top_movies, config);
 }
-
-
 
 
 // Helper function to compare movies for qsort
