@@ -49,35 +49,31 @@ typedef struct
 void get_recommendation(setting * config, /*int genre[],*/ struct movie movie[]/*, int adult_movies*/);
 void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
 void change_preferences(setting* config);
-void find_random_movies_not_in_list(setting* config, struct movie movie[]);
 void change_genre_config(setting *config);
 void welcome(setting *config);
 void adjust_s_services(setting * config);
-void printMenu(setting *config, struct movie movies_array[]);
+void print_menu(setting *config, struct movie movies_array[]);
 void quit_function();
 void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
 void read_config(setting *config);
 void reset_conf(setting * config);
 int toggle_setting(setting * config, int offset, int setting);
-int get_value_from_key(setting *config, char *key);
 int change_setting_value(setting *config, int setting);
 int scanf_for_int(void);
 void reset_conf(setting * config);
 void get_recommendation(setting *config, struct movie all_movies[]);
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
-int is_movie_already_selected(struct movie top_movies[], int top_count, struct movie movie);
-void print_recommended_menu(struct movie top_movies[], int top_count, struct movie movie_watchable[], int watchable_count, setting *config);
 void subtract_weight(struct movie movie, setting *config);
 void add_weight(struct movie movie, setting *config);
 void weight_genre(struct movie movie, setting *config);
 int print_info(struct movie movie, setting *config, int movie_pick);
 void select_movie(struct movie show_five_movie_arr[], setting *config);
 void explain(struct movie movie, setting *config, char *genre_array[], int movie_pick);
+double BALANCING_FACTOR(double genre_count, setting * config);
 
 void screen_clear();
 
-// void import_movies(int movie_array[]); // Husk lige at tilføj den igen
 
 //////////////
 /////MAIN/////
@@ -146,12 +142,14 @@ int main(void)
     
     screen_clear();
     while (running) {
-        printMenu(config, movie_array);
+        print_menu(config, movie_array);
     }
     
     return 0;
 }
 // ############MAIN-END###################
+
+// Function to check if the program is in "debug-mode"
 void screen_clear() {
     if (DEBUG == 0)
         system(CLEAR_SCREEN);
@@ -166,10 +164,10 @@ void welcome(setting * config)
 
 // ###########################
 // ###### Menu functions #####
-// #########################
+// ###########################
 
 // Function that creates a main menu and handles it trough other functions
-void printMenu(setting * config, struct movie movie_array[])
+void print_menu(setting * config, struct movie movie_array[])
 {
     // Integer value for selecting menu option
     int selection;
@@ -210,8 +208,6 @@ void printMenu(setting * config, struct movie movie_array[])
     }
  
 } 
-//  Service sub menu functions
-//
 
 // Checks if parameter is int and returns user_input/result
 int scanf_for_int(void) {
@@ -293,7 +289,6 @@ void quit_function()
 }
 
 // Change preferences menu printing and toggling
-// Change preferences menu printing and toggling
 void change_preferences(setting * config) {
     int user_input;
     int setting_offset = STREAM_SERVICE_COUNT;
@@ -303,6 +298,15 @@ void change_preferences(setting * config) {
         print_config_items(config , setting_offset, "===== Settings Menu =====", SETTING_COUNT, 0);
         printf("  0: Exit menu\n");
 
+        printf("\nThe differet scaling options has an effect on how your recommendations is generated.\n");
+        printf("If you are unsure the recommende option is square root. Here are some descriptions:\n\n");
+        printf("Square root scaling: An approach where movies with one, two or three genres are\n");
+        printf("                     aproximatly valued the same.\n");
+        printf("Linear scaling:      Simplest approach, but undervalues genres with more then one genre\n");
+        printf("                     This is smart if you want one specific genre.\n");
+        printf("Logarithm scaling:   An approach where movies with more then one genre is prefered.\n\n");
+
+        printf("====================\n");
         printf("Enter number: ");
         user_input = scanf_for_int();
 
@@ -332,7 +336,7 @@ void change_preferences(setting * config) {
     write_config(config);
 }
 
-// sub menu for changing genre config
+//Sub menu for changing genre config
 void change_genre_config(setting * config) 
 {
     int user_input;
@@ -341,8 +345,9 @@ void change_genre_config(setting * config)
     while (1) {
         int user_input;
         screen_clear();
-        print_config_items(config , setting_offset, "===== Genre Menu =====\n Write 0 to exit menu", GENRE_COUNT, 1);
-
+        print_config_items(config , setting_offset,
+        "===== Genre Menu =====\n Write 0 to exit menu\n The genres can be rated from 1-10 where 10 is the highest", GENRE_COUNT, 1);
+        
         printf("Select Genre: ");
         user_input = scanf_for_int();
         if (change_setting_value(config, user_input) == 0) {
@@ -354,7 +359,7 @@ void change_genre_config(setting * config)
 }
 
 
-// Function for printing what is available at the moment
+//Function for printing what is available at the moment
 void print_config_items(setting * config, int offset, const char* header, int print_array_length, int valueBool) 
 {
     printf("%s:\n", header);
@@ -490,7 +495,6 @@ void get_new_recommendation()
 // ##################################
 // ###### Recommendation system #####
 // ##################################
-
 /* Function for getting a recommendation */
 // The main recommendation function
 void get_recommendation(setting *config, struct movie all_movies[]) 
@@ -517,14 +521,13 @@ int compareMovies(const void *a, const void *b) {
 }
 
 // Helper function to filter and rank movies 
-
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count) 
 {
     // Calculate scores for each movie
     int movie_score_given = 0;
     for (int i = 0; i < MAX_MOVIES; i++) {
         all_movies[i].genre_score = 0;
-        int genre_count = 0;
+        double genre_count = 0.0;
         // Check if the movie is available on any active streaming service
         for (int j = 0; j < STREAM_SERVICE_COUNT; j++) {
             if (config[j].value == 1 && all_movies[i].services[j] == 1) {
@@ -534,13 +537,13 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
                     if (all_movies[i].genre[k] == 1) {
                         int genre_weight = config[STREAM_SERVICE_COUNT + SETTING_COUNT + k].value;
                         all_movies[i].genre_score += genre_weight;
-                        genre_count++;
+                        genre_count = genre_count + 1.0;
                         
                     }
                 }
-                all_movies[i].genre_score /= sqrt((double)genre_count);
-                // Optional: Add a balancing factor for movies with multiple genres
-                // all_movies[i].genre_score += BALANCING_FACTOR * (genre_count - 1);
+                
+                // Option from config: Adds a balancing factor for movies with multiple genres
+                all_movies[i].genre_score /= BALANCING_FACTOR(genre_count, config);
 
                 break; // No need to check other streaming services
             }
@@ -566,6 +569,20 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
     top_movies[4] = all_movies[rand_two];
 }
 
+double BALANCING_FACTOR(double genre_count, setting * config)
+{
+    if (config[12].value == 1) {
+        return sqrt(genre_count);
+    }
+    
+    else if (config[13].value == 1) {
+        return(genre_count);
+    }
+    else if (config[14].value == 1) {
+        return(log(genre_count+1));
+    }
+
+}
 // ############################
 // ###### print functions #####
 // ############################
@@ -574,7 +591,7 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
 // ###### Weighting #####
 // ######################
 
-void weight_genre(struct movie movie, /*struct*/ setting *config)
+void weight_genre(struct movie movie, setting *config)
 {
     int user_input = 2;
     do{
@@ -746,15 +763,16 @@ void explain(struct movie movie, setting *config, char *genre_array[], int movie
         }
         printf("This means your collected genre score for this movie is: %.2f\n\n", movie.genre_score);
 
-        printf("The collected genre score was calculated with: ");
-    
-    
+        printf("The collected genre score was calculated with:");
         for(int i = STREAM_SERVICE_COUNT + RESET_OPTION; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++){
             if(config[i].value == 1){  
                 printf(" %s \n", config[i].key);
                 break;
             }
         }
+        printf("This score is calculated from your genre weigts, the amount of\n");
+        printf("genre on the movie and your prefered choice of scaling.\n");
+        printf("You can read more about your scaling options in the setting menu.\n");
     }
     else{
         printf("%swas selected randomnly.\n", movie.title); 
