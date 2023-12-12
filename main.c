@@ -286,9 +286,9 @@ void reset_conf(setting * config) {
 void quit_function()
 {
     screen_clear();
-    printf("You have choosen to exit our program, we hope you have a good\n");
-    printf("time with the recommended movie  :D\n");
-    printf("Your choice of streaming services have been saved \n");
+    printf("You have chosen to exit our program. We hope you have had a good\n");
+    printf("time with the recommended movie(s) :D\n");
+    printf("Your choice of streaming services and genre weightings have been saved.\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -302,13 +302,13 @@ void change_settings(setting * config) {
         print_config_items(config , setting_offset, "===== Settings Menu =====", SETTING_COUNT, 0);
         printf("  0: Exit menu\n");
 
-        printf("\nThe differet scaling options has an effect on how your recommendations is generated.\n");
-        printf("If you are unsure the recommende option is square root. Here are some descriptions:\n\n");
+        printf("\nThe different scaling options has an effect on how your recommendations are generated.\n");
+        printf("If you are unsure, the recommended option is square root. Here are some descriptions:\n\n");
         printf("Square root scaling: An approach where movies with one, two or three genres are\n");
-        printf("                     aproximatly valued the same.\n");
-        printf("Linear scaling:      Simplest approach, but undervalues genres with more then one genre\n");
+        printf("                     approximately valued the same.\n");
+        printf("Linear scaling:      Simplest approach, but undervalues genres with more than one genre.\n");
         printf("                     This is smart if you want one specific genre.\n");
-        printf("Logarithm scaling:   An approach where movies with more then one genre is prefered.\n\n");
+        printf("Logarithm scaling:   An approach where movies with more than one genre is prefered.\n\n");
 
         printf("====================\n");
         printf("Enter number: ");
