@@ -242,7 +242,7 @@ void change_s_services(setting * config) {
 
         // Ask the user which streaming service they want to activate/deactivate
         printf("\nWhich streaming service do you want to activate/deactivate?\n");
-        printf("If you don't want to change any, press 0.\n");
+        printf("If you want to return, press 0.\n");
         printf("Enter number: ");
         user_input = scanf_for_int(0, 11);
 
