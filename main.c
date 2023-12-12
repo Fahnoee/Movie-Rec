@@ -351,8 +351,9 @@ void change_genre_config(setting * config)
         int user_input;
         screen_clear();
         print_config_items(config , setting_offset,
-        "===== Genre Menu =====\n Write 0 to exit menu\n The genres can be rated from 1-10 where 10 is the highest", GENRE_COUNT, 1);
-        
+        "===== Genre Menu =====\n The genres can be rated from 1-10 where 10 is the highest", GENRE_COUNT, 1);
+
+        printf("Press 0 to exit\n");
         printf("Select Genre: ");
         user_input = scanf_for_int(0, 20);
         if (change_setting_value(config, user_input) == 0) {
