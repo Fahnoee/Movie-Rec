@@ -23,7 +23,6 @@
 #define ARRAY_MENU_LENGTH 4
 #define GENRE_COUNT 20
 #define DEBUG 0
-#define RESET_OPTION 0
 
 // Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
 #ifdef _WIN32
@@ -48,19 +47,19 @@ typedef struct
 // #######################
 void get_recommendation(setting * config, /*int genre[],*/ struct movie movie[]/*, int adult_movies*/);
 void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
-void change_preferences(setting* config);
+void change_settings(setting* config);
 void change_genre_config(setting *config);
 void welcome(setting *config);
-void adjust_s_services(setting * config);
+void change_s_services(setting * config);
 void print_menu(setting *config, struct movie movies_array[]);
 void quit_function();
 void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
 void read_config(setting *config);
 void reset_conf(setting * config);
-int toggle_setting(setting * config, int offset, int setting);
+int toggle_setting(setting *config, int offset, int setting, int valueBool);
 int change_setting_value(setting *config, int setting);
-int scanf_for_int(void);
+int scanf_for_int(int min_value, int max_value);
 void reset_conf(setting * config);
 void get_recommendation(setting *config, struct movie all_movies[]);
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
@@ -182,20 +181,20 @@ void print_menu(setting * config, struct movie movie_array[])
 
     // Ask the user to select a menu option 
     printf("Enter a number: "); 
-    int user_input = scanf_for_int();
+    int user_input = scanf_for_int(0, 4);
         
     switch (user_input) {
     case 1:
       get_recommendation(config, movie_array);
       break;
     case 2:
-      adjust_s_services(config);
+      change_s_services(config);
       break;
     case 3:
       change_genre_config(config);      
       break;
     case 4:
-      change_preferences(config);      
+      change_settings(config);      
       break;
     case 0:
       quit_function();
@@ -210,7 +209,7 @@ void print_menu(setting * config, struct movie movie_array[])
 } 
 
 // Checks if parameter is int and returns user_input/result
-int scanf_for_int(void) {
+int scanf_for_int(int min_value, int max_value) {
     int user_input;
     int result;
     do
@@ -222,14 +221,19 @@ int scanf_for_int(void) {
         {
             while (getchar() != '\n')
                 ;
-            printf("You didn't enter a number try again: ");
+            printf("You didn't enter a number. Please try again: ");
         }
-        } while (result != 1);
-        return user_input;
+        else if (user_input < min_value || user_input > max_value)
+        {
+            printf("Invalid number. Please enter a number between %d and %d: ", min_value, max_value);
+            result = 0; // Set result to 0 to continue the loop
+        }
+    } while (result != 1);
+    return user_input;
 }
 
 // Function to handle user input and toggle the status of active services
-void adjust_s_services(setting * config) {
+void change_s_services(setting * config) {
     int user_input;
 
     while (1) {
@@ -240,10 +244,10 @@ void adjust_s_services(setting * config) {
         printf("\nWhich streaming service do you want to activate/deactivate?\n");
         printf("If you don't want to change any, press 0.\n");
         printf("Enter number: ");
-        user_input = scanf_for_int();
+        user_input = scanf_for_int(0, 11);
 
         // Toggle the setting and break the loop if the result is 0
-        if (toggle_setting(config, 0, user_input) == 0) {
+        if (toggle_setting(config, 0, user_input, 0) == 0) {
             screen_clear();
             break;
         }
@@ -289,7 +293,7 @@ void quit_function()
 }
 
 // Change preferences menu printing and toggling
-void change_preferences(setting * config) {
+void change_settings(setting * config) {
     int user_input;
     int setting_offset = STREAM_SERVICE_COUNT;
     
@@ -308,7 +312,7 @@ void change_preferences(setting * config) {
 
         printf("====================\n");
         printf("Enter number: ");
-        user_input = scanf_for_int();
+        user_input = scanf_for_int(0, 4);
 
         if (user_input == 1) {
             reset_conf(config);
@@ -327,7 +331,8 @@ void change_preferences(setting * config) {
             printf("Exiting settings menu.\n");
             screen_clear();
         }
-        if ((toggle_setting(config, setting_offset, user_input) == 0) && (user_input != 1)) {
+
+        if ((toggle_setting(config, setting_offset, user_input, 1) == 0) && (user_input != 1)) {
             printf("Exiting settings menu.\n");
             screen_clear();
             break;
@@ -349,7 +354,7 @@ void change_genre_config(setting * config)
         "===== Genre Menu =====\n Write 0 to exit menu\n The genres can be rated from 1-10 where 10 is the highest", GENRE_COUNT, 1);
         
         printf("Select Genre: ");
-        user_input = scanf_for_int();
+        user_input = scanf_for_int(0, 20);
         if (change_setting_value(config, user_input) == 0) {
             screen_clear();
             break;
@@ -392,23 +397,24 @@ int change_setting_value(setting * config, int setting)
     if (setting >= 1 && setting <= STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT) {
         setting = (setting + offset) - 1;
         printf("Enter a value for %s: ", config[setting].key);
-        user_input = scanf_for_int();
-        if (user_input >= 1 && user_input <= 10) {
-            config[setting].value = user_input;
-        } 
-        else {
-        printf("Invalid input! We try again\n");
-        return 1;
+        user_input = scanf_for_int(0, 10);
+        if (user_input) {
+             config[setting].value = user_input;
+             return 1;
         }
+       
+        
     }
-    return 1;
+    return 0;
 }
 
 // Toggles a value in the config array of structs
-int toggle_setting(setting * config, int offset, int setting)
+int toggle_setting(setting * config, int offset, int setting, int valueBool)
 {
     if (setting == 0) {
         return 0;
+    } else if (valueBool == 1) {
+        return 1;
     }
     
     
@@ -581,8 +587,8 @@ double BALANCING_FACTOR(double genre_count, setting * config)
     else if (config[14].value == 1) {
         return(log(genre_count+1));
     }
-
 }
+
 // ############################
 // ###### print functions #####
 // ############################
@@ -601,7 +607,7 @@ void weight_genre(struct movie movie, setting *config)
         printf("1:  Yes\n");
         printf("2:  No\n");
         printf("0:  Don't know\n"); 
-        user_input = scanf_for_int();
+        user_input = scanf_for_int(0, 2);
     }
     while(user_input < 0 || user_input > 2);
     screen_clear();
@@ -679,7 +685,7 @@ void select_movie(struct movie show_five_movie_arr[], setting *config)
             printf("Movie %d: %s\n", i+1, show_five_movie_arr[i].title);
         }   
         printf("\nSelect a movie to show information (1-5) or 0 to return:\n");
-        movie_pick = scanf_for_int();
+        movie_pick = scanf_for_int(0, 5);
         if(movie_pick == 0){
             break;
         }
@@ -733,7 +739,7 @@ int print_info(struct movie movie, setting *config, int movie_pick)
         printf("Type 2 to explain this recommendation\n");
         printf("Type 0 to return to recommendations\n");
         printf("======================================\n");
-        user_input = scanf_for_int();
+        user_input = scanf_for_int(0, 2);
     
         if(user_input == 2){
             explain(movie, config, genre_array, movie_pick);
@@ -764,7 +770,7 @@ void explain(struct movie movie, setting *config, char *genre_array[], int movie
         printf("This means your collected genre score for this movie is: %.2f\n\n", movie.genre_score);
 
         printf("The collected genre score was calculated with:");
-        for(int i = STREAM_SERVICE_COUNT + RESET_OPTION; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++){
+        for(int i = STREAM_SERVICE_COUNT; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++){
             if(config[i].value == 1){  
                 printf(" %s \n", config[i].key);
                 break;
@@ -783,7 +789,7 @@ void explain(struct movie movie, setting *config, char *genre_array[], int movie
 
     do{
         printf("\nEnter 0 to return:\n");
-        user_input = scanf_for_int();
+        user_input = scanf_for_int(0,0);
     }while(user_input != 0); 
     //if this is zero is shuld return to movie info page
 }
