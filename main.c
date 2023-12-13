@@ -588,6 +588,7 @@ double BALANCING_FACTOR(double genre_count, setting * config)
     else if (config[14].value == 1) {
         return(log(genre_count+1));
     }
+    return 0;
 }
 
 // ############################
