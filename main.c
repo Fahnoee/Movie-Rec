@@ -1,13 +1,11 @@
 /*
- * This is the main C program file for the best movie recommender in the world.
- * It contains various functions for managing streaming services, adjusting preferences, and providing movie recommendations.
+ * This is the main C program file for a movie recommender.
+ * It contains various functions for managing streaming services, adjusting preferences, and other features.
  * The program uses structs to represent genres, streaming services, and movies.
  * It also includes file handling functions for reading and writing configuration files.
  */
 
-// ######################
-// ###### libraries #####
-// ######################
+// ###### Libraries #####
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,9 +13,7 @@
 #include <time.h>
 #include "fscanf.c"
 
-// ###############################
 // ###### Constant Variables #####
-// ###############################
 #define STREAM_SERVICE_COUNT 11
 #define SETTING_COUNT 4
 #define ARRAY_MENU_LENGTH 4
@@ -25,17 +21,14 @@
 #define DEBUG 0
 #define RESET_OPTION 0
 
-// Læs om prepressor directives, med det her kan vi bruge system("CLEAR_SCREEN") på både mac, linux og windows
+// Prepressor directives, in order to use system("CLEAR_SCREEN") on both mac, linux and windows.
 #ifdef _WIN32
 #define CLEAR_SCREEN "cls"
 #else
 #define CLEAR_SCREEN "clear"
 #endif
 
-// ####################
 // ###### Structs #####
-// ####################
-
 typedef struct
 {
     char key[50];
@@ -43,26 +36,22 @@ typedef struct
 } setting;
 
 
-// #######################
 // ###### Prototypes #####
-// #######################
-void get_recommendation(setting * config, /*int genre[],*/ struct movie movie[]/*, int adult_movies*/);
+void get_recommendation(setting * config, struct movie movie[]);
 void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
 void change_preferences(setting* config);
 void change_genre_config(setting *config);
-void welcome(setting *config);
+void read_config(setting *config);
 void adjust_s_services(setting * config);
 void print_menu(setting *config, struct movie movies_array[]);
 void quit_function();
 void write_config(setting *key_value_pair);
 void check_file_opening(FILE *f);
-void read_config(setting *config);
 void reset_conf(setting * config);
 int toggle_setting(setting * config, int offset, int setting);
 int change_setting_value(setting *config, int setting);
 int scanf_for_int(void);
 void reset_conf(setting * config);
-void get_recommendation(setting *config, struct movie all_movies[]);
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
 void subtract_weight(struct movie movie, setting *config);
 void add_weight(struct movie movie, setting *config);
@@ -71,32 +60,25 @@ int print_info(struct movie movie, setting *config, int movie_pick);
 void select_movie(struct movie show_five_movie_arr[], setting *config);
 void explain(struct movie movie, setting *config, char *genre_array[], int movie_pick);
 double BALANCING_FACTOR(double genre_count, setting * config);
-
 void screen_clear();
 
 
-//////////////
-/////MAIN/////
-//////////////
+// ##### MAIN #####
 int main(void)
 {
-    srand(time(NULL));
-    struct movie movie_array[MAX_MOVIES];
+    srand(time(NULL));                              //Generate random seed for picking random movies later
+    struct movie movie_array[MAX_MOVIES];           //Generate movie struct array to contain all movies
 
-    FILE *f = fopen("movies.txt", "r");
-    if (f == NULL)
-    {
-        printf("FILE WAS NOT OPENED.\n"); 
-        exit(EXIT_FAILURE);
-    }
+    FILE *f = fopen("movies.txt", "r");             //Opens data set
+    check_file_opening(f);                          //Checks if file is open corretly
 
-    for(int i = 0; i < MAX_MOVIES; i++) {
+    for (int i = 0; i < MAX_MOVIES; i++) {           //Imports movies from fil line by line
         movie_array[i] = import_movies(f);
     }
-    fclose(f);
+    fclose(f);                                      //Closes file
    
-    setting config[STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT] = {
-        // Streaming service's
+    setting config[STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT] = {    //Genereta a config struct for:
+        //Streaming service's
         {"Netflix", 1},
         {"DRTV", 1},
         {"HBO max", 1},
@@ -108,12 +90,12 @@ int main(void)
         {"Cmore", 1},
         {"Amazone Prime", 1},
         {"Rakuten", 1},
-        // Other settings
+        //Settings
         {"Reset all", 0},
         {"Square root scaling", 1},
         {"Linear scaling", 0},
         {"Logarithmic scaling", 0},
-        // Genres
+        //Genres
         {"Action", 1},
         {"Adventure", 1},
         {"Drama", 1},
@@ -136,36 +118,24 @@ int main(void)
         {"Musical", 1},
     };
 
-    welcome(config);
+    read_config(config);        //If user have used program before, this will load up their condig
 
-    int running = 1;
+    int running = 1;            //Int decaration to keep program running
     
-    screen_clear();
-    while (running) {
-        print_menu(config, movie_array);
+    screen_clear();             //Clears the terminal to make it look crisp
+    while (running) {           //While loop that keeps user in program until exit-function is called in menu
+        print_menu(config, movie_array);        //Runs the menu/program
     }
     
     return 0;
 }
-// ############MAIN-END###################
-
-// Function to check if the program is in "debug-mode"
-void screen_clear() {
-    if (DEBUG == 0)
-        system(CLEAR_SCREEN);
-}
+// ###### MAIN-END ######
 
 
-// Function for welcoming the new user and loading up their config file
-void welcome(setting * config)
-{
-    read_config(config);
-}
+// ###### FUNCTION SECTIONS ######
 
-// ###########################
+
 // ###### Menu functions #####
-// ###########################
-
 // Function that creates a main menu and handles it trough other functions
 void print_menu(setting * config, struct movie movie_array[])
 {
@@ -184,24 +154,28 @@ void print_menu(setting * config, struct movie movie_array[])
     printf("Enter a number: "); 
     int user_input = scanf_for_int();
         
-    switch (user_input) {
-    case 1:
+    switch (user_input) {       // Switchcase to execute the function of users choice
+    case 1: 
       get_recommendation(config, movie_array);
       break;
+
     case 2:
       adjust_s_services(config);
       break;
+
     case 3:
       change_genre_config(config);      
       break;
+
     case 4:
       change_preferences(config);      
       break;
+      
     case 0:
       quit_function();
       break;
     
-    default:
+    default:                //In case of invaild input user gets a error-massages and gets to try again.
       screen_clear();
       printf("\nInvalid number, you can only use numbers represented by the menu: \n"); 
       break;
@@ -209,31 +183,33 @@ void print_menu(setting * config, struct movie movie_array[])
  
 } 
 
-// Checks if parameter is int and returns user_input/result
-int scanf_for_int(void) {
+// Functions that checks if parameter is int and returns the users input
+int scanf_for_int(void) 
+{
     int user_input;
-    int result;
-    do
-    {
-        result = scanf("%d", &user_input);
+    int result_of_scan;
+    
+    do {
+        result_of_scan = scanf("%d", &user_input);            //scanf returns 0 if scan is not succesfull, 1 if it is a succes
 
-        // Clear the input buffer if the input is not an integer
-        if (result == 0)
-        {
-            while (getchar() != '\n')
-                ;
-            printf("You didn't enter a number try again: ");
+        if (result_of_scan == 0) {                            //If unsuccesfull
+            while (getchar() != '\n');                        //Clears input buffer
+
+            printf("You didn't enter a number try again: ");  //Prints error messeges
         }
-        } while (result != 1);
-        return user_input;
+        } while (result_of_scan != 1);                        //if scan is succesfull, quit do while loop
+    return user_input;
 }
 
-// Function to handle user input and toggle the status of active services
-void adjust_s_services(setting * config) {
+// Function to handle users streaming services and toggle the status of active services
+void adjust_s_services(setting * config) 
+{
     int user_input;
 
-    while (1) {
+    while (1) {                 //While loop that keeps runnig until user wants to stop edditing
         screen_clear();
+        
+        // Print function to printing all the current streaminngg services
         print_config_items(config, 0, "Currently you have the following streaming services available", STREAM_SERVICE_COUNT, 0);
 
         // Ask the user which streaming service they want to activate/deactivate
@@ -249,33 +225,36 @@ void adjust_s_services(setting * config) {
         }
     }
 
-    write_config(config);
+    write_config(config);       //Writes new config to save the users settings
 }
 
-// Reset conf function
-void reset_conf(setting * config) {
+// Function for reset config file
+void reset_conf(setting * config) 
+{
     int lines_in_config = STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT;
-        for (int i = 0; i < lines_in_config; i++) {
-        if (i == 11){ // reset settings
+    for (int i = 0; i < lines_in_config; i++) {
+        if (i == 11) {                   // reset settings
             config[i].value = 0;
-        } else if (i >= STREAM_SERVICE_COUNT && i < STREAM_SERVICE_COUNT + SETTING_COUNT) { // reset scaling
+        } 
+        else if (i >= STREAM_SERVICE_COUNT && i < STREAM_SERVICE_COUNT + SETTING_COUNT) { //reset scaling
             if (i == 12) {
                 config[i].value = 1;
-            } else {
+            } 
+            else {
                 config[i].value = 0;
             }
-            
-        } else if (i >= STREAM_SERVICE_COUNT + SETTING_COUNT && i < lines_in_config) { // reset genre
+        }       
+        else if (i >= STREAM_SERVICE_COUNT + SETTING_COUNT && i < lines_in_config) {  //reset genres
             config[i].value = 5;
-        } else {  // reset streaming services
+        } 
+        else {                    // Reset streaming services
             config[i].value = 1;
-        }
+        }   
     }
     
     screen_clear();
-    write_config(config);
+    write_config(config);         // Writes the now reset config
     printf("\nAll of your settings have been reset :) \n");
-
 }
 
 // Function for quitting the program
@@ -283,22 +262,23 @@ void quit_function()
 {
     screen_clear();
     printf("You have choosen to exit our program, we hope you have a good\n");
-    printf("time with the recommended movie  :D\n");
-    printf("Your choice of streaming services have been saved \n");
-    exit(EXIT_SUCCESS);
+    printf("time with the recommended movie! :D\n");
+    printf("Your genre weightings and choice of streaming services have been saved.\n");
+    exit(EXIT_SUCCESS); //Exits program succesfully
 }
 
-// Change preferences menu printing and toggling
-void change_preferences(setting * config) {
+// Fucntion that change setting preferences by printing and toggeling or resets config
+void change_preferences(setting * config)  
+{
     int user_input;
     int setting_offset = STREAM_SERVICE_COUNT;
     
-    while (1) {
+    while (1) { //While loop that quits when user types 0 to return
         screen_clear();
-        print_config_items(config , setting_offset, "===== Settings Menu =====", SETTING_COUNT, 0);
+        print_config_items(config , setting_offset, "===== Settings Menu =====", SETTING_COUNT, 0);     //prints settings ant if they are on
         printf("  0: Exit menu\n");
 
-        printf("\nThe differet scaling options has an effect on how your recommendations is generated.\n");
+        printf("\nThe differet scaling options has an effect on how your recommendations is generated.\n"); //Explains the scaling options to the user
         printf("If you are unsure the recommende option is square root. Here are some descriptions:\n\n");
         printf("Square root scaling: An approach where movies with one, two or three genres are\n");
         printf("                     aproximatly valued the same.\n");
@@ -308,140 +288,133 @@ void change_preferences(setting * config) {
 
         printf("====================\n");
         printf("Enter number: ");
-        user_input = scanf_for_int();
+        user_input = scanf_for_int();      //Scans to see what the user wants to change
 
         if (user_input == 1) {
-            reset_conf(config);
+            reset_conf(config);            //Resets all services, genre weights and scaling choices
             break;
         }
 
-        if (user_input >= 2 && user_input <= 4) {
-            // Set values from STREAM_SERVICE_COUNT + 1 to STREAM_SERVICE_COUNT + SETTING_COUNT to 0
-            for (int i = STREAM_SERVICE_COUNT + 1; i <= STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
+        if (user_input >= 2 && user_input <= 4) {   //Changes the scaling choice in the config
+            for(int i = STREAM_SERVICE_COUNT + 1; i <= STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
                 config[i].value = 0;
             }
 
-            // Set value number user_input + STREAM_SERVICE_COUNT to 1 
+            // Takes scanned number and adds so it fits with the config setting
             // Minus 1 is to account for the array starting at 0
             config[user_input + STREAM_SERVICE_COUNT - 1 ].value = 1;            
-            printf("Exiting settings menu.\n");
             screen_clear();
         }
+        
+            // If zero is types, return to main menu
         if ((toggle_setting(config, setting_offset, user_input) == 0) && (user_input != 1)) {
-            printf("Exiting settings menu.\n");
             screen_clear();
             break;
         }
     }
-    write_config(config);
+    write_config(config);  //updates the config file
 }
 
-//Sub menu for changing genre config
+//Function to change genres setting and updating config
 void change_genre_config(setting * config) 
 {
     int user_input;
     int setting_offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
     
-    while (1) {
+    while (1) { //while loop until user exits with 0
         int user_input;
         screen_clear();
-        print_config_items(config , setting_offset,
+        print_config_items(config , setting_offset, //Prints genre menu function
         "===== Genre Menu =====\n Write 0 to exit menu\n The genres can be rated from 1-10 where 10 is the highest", GENRE_COUNT, 1);
         
         printf("Select Genre: ");
-        user_input = scanf_for_int();
-        if (change_setting_value(config, user_input) == 0) {
+        user_input = scanf_for_int(); //User selects a genre to change
+        if (change_setting_value(config, user_input) == 0) { //Calls a function that changes value for the genre. If 0 = quit
             screen_clear();
             break;
         } 
     }
-    write_config(config);
+    write_config(config); //Updates user configuration
 }
 
-
-//Function for printing what is available at the moment
-void print_config_items(setting * config, int offset, const char* header, int print_array_length, int valueBool) 
+//Generelized function for printing what is available in config at the moment, used in other functions to print.
+void print_config_items(setting * config, int offset, const char* header, int print_array_length, int valueBool) //A function that prints a menu
 {
     printf("%s:\n", header);
-    if (valueBool == 0) {
+    if (valueBool == 0) {         //if called with a 0 prints streaming services
         for (int i = 0; i < print_array_length; i++) {
-            if (config[i + offset].value == 1) {
-                printf("%3d: %-21s   [x]\n", i + 1, config[i + offset].key);
-            } else {
-                printf("%3d: %-21s   [ ]\n", i + 1, config[i + offset].key);
+            if (config[i + offset].value == 1) {        //Checks if that spot in config is 1. 
+                printf("%3d: %-21s   [x]\n", i + 1, config[i + offset].key); //Indicates active if 1, prints box with x if on
+            } 
+            else {
+                printf("%3d: %-21s   [ ]\n", i + 1, config[i + offset].key); //Indicates inactive if 0, prints empty box if of
             }
         }
-    } else if (valueBool == 1) {
+    } 
+    else if (valueBool == 1) {     //if called with a 1, prints genre menu
         for (int i = 0; i < print_array_length; i++) {
             printf("%3d: %-13s   [%d]\n", i + 1, config[i + offset].key, config[i + offset].value);
         }
     }    
 }
 
-
-// changes a value in the config array of structs
+// Function for changes a value in the config array of structs
 int change_setting_value(setting * config, int setting) 
 {
     int offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
     int user_input;
 
-    if (setting == 0) {
+    if (setting == 0) {      //returns if 0 is given.
         return 0;
     }
-   
+
     if (setting >= 1 && setting <= STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT) {
         setting = (setting + offset) - 1;
-        printf("Enter a value for %s: ", config[setting].key);
-        user_input = scanf_for_int();
-        if (user_input >= 1 && user_input <= 10) {
+        printf("Enter a value for %s: ", config[setting].key);      //prints to ask what value to indput in fx. a genre
+        user_input = scanf_for_int();                               //scan for int
+
+        if (user_input >= 1 && user_input <= 10) {                  //checks if vallid input
             config[setting].value = user_input;
         } 
-        else {
-        printf("Invalid input! We try again\n");
-        return 1;
+        else {                                                      //else print error messegs and return one
+            printf("Invalid input! We try again\n");                //so function is called again
+            return 1;
         }
     }
     return 1;
 }
 
-// Toggles a value in the config array of structs
+// Function to toggle a value in the config array of structs
 int toggle_setting(setting * config, int offset, int setting)
 {
-    if (setting == 0) {
+    if (setting == 0) {                      //If given setting zero returns zero
         return 0;
     }
     
-    
     if (setting >= 1 && setting <= STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT) {
-        setting = (setting + offset) - 1; // Needs to be 1 less then input due to arrays starting at 0
-                                          // change the value of the streaming service
-        if (config[setting].value == 1)
-        {
-            config[setting].value = 0;
-            
+        setting = (setting + offset) - 1;    // Needs to be 1 less then input due to arrays starting at 0
+                                             
+        if (config[setting].value == 1) {    // Change the value of the streaming service
+            config[setting].value = 0;       // if it was on, it is set off
         }
-        else
-        {
-            config[setting].value = 1;
+        else {                          
+            config[setting].value = 1;       // if not on, it was off, and gets turned on.
         }
         return 1;
     }
-    else {
+    else {                                   // invallid input, prints error
         printf("Invalid input! We try again\n");
         return 1;
     }
 }
 
-// ####################################
-// ###### File handling functions #####
-// ####################################
-
+// ###### File handling functions ######
 // Function for creating a config, used to save available streaming services
 void write_config(setting *key_value_pair)
 {
-    FILE *config_file;                    // Creates pointer to file
-    config_file = fopen("conf.txt", "w"); // Opens file
-    check_file_opening(config_file);      // Checks if it is read correctly
+    FILE *config_file;                      // Creates pointer to file
+    config_file = fopen("conf.txt", "w");   // Opens file
+    check_file_opening(config_file);        // Checks if it is read correctly
 
     for (int i = 0; i < (STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT); i++) { // Forloop that writes the config file
         fprintf(config_file, "%s=%d \n", key_value_pair[i].key, key_value_pair[i].value);
@@ -455,10 +428,10 @@ void read_config(setting * config)
 {
     FILE *file;
     file = fopen("conf.txt", "r");
-    if (file == NULL) {                         // In case of first opening of program the config will be missing
-        write_config(config); // Here a config is writing from the global variable.
+    if (file == NULL) {                     // In case of first opening of program the config will be missing
+        write_config(config);               // Here a config is writing from the global variable.
 
-        file = fopen("conf.txt", "r"); // Re-open the file after creating it
+        file = fopen("conf.txt", "r");      // Re-open the file after creating it
         check_file_opening(file);
     }
 
@@ -468,35 +441,26 @@ void read_config(setting * config)
     fclose(file);
 }
 
-/* Function for testing if a file is read correctly */
+// Function for testing if a file is read correctly
 void check_file_opening(FILE *f)
 {
-    if (f == NULL) {
+    if (f == NULL) {            //If fail accure when file is attemtpt to open, the open command returns NULL.
         printf("There has been a fail in loading your file, now exiting...\n");
         exit(EXIT_FAILURE);
     }
 }
 
-/* Function for getting a new recommendation */
-void get_new_recommendation()
+// Function to clear screen, it allso check if the program is in "debug-mode"
+void screen_clear() 
 {
-    /* kald tidligere recommendation, men tillad ikke de x første/bedste matches at blive vist
-       så den tager måske i+5, i+6, i+7, i+8 osv som valg. */
-
-    printf("You have choosen to get new recommendations\n");
-    printf("Based on your previous genre-settings and choice of streaming\n");
-    printf("platforms, these new options is available: \n");
-
-    /* Print på samme måde som den almindelige recommendation (nok via en func)
-       så der blot vises de nye recommendations */
+    if (DEBUG == 0) {
+        system(CLEAR_SCREEN);
+    }
 }
 
 
-// ##################################
 // ###### Recommendation system #####
-// ##################################
-/* Function for getting a recommendation */
-// The main recommendation function
+// Function for recommendating a movie
 void get_recommendation(setting *config, struct movie all_movies[]) 
 {
     struct movie top_movies[5];
@@ -505,47 +469,49 @@ void get_recommendation(setting *config, struct movie all_movies[])
 }
 
 
-// Helper function to compare movies for qsort
-int compareMovies(const void *a, const void *b) {
+// Helper function to compare movies used in qsort
+int compareMovies(const void *a, const void *b) 
+{
     struct movie *movieA = (struct movie *)a;
     struct movie *movieB = (struct movie *)b;
 
     // Compare genre scores
     if ((*movieA).genre_score > (*movieB).genre_score) {
         return -1;  // A comes before B
-    } else if ((*movieA).genre_score < (*movieB).genre_score) {
+    } 
+    else if ((*movieA).genre_score < (*movieB).genre_score) {
         return 1;   // B comes before A
     }
 
     return 0;
 }
 
-// Helper function to filter and rank movies 
+// Function to filter and rank movies used to pressent the recommendation
 void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count) 
 {
     // Calculate scores for each movie
     int movie_score_given = 0;
-    for (int i = 0; i < MAX_MOVIES; i++) {
+
+    for (int i = 0; i < MAX_MOVIES; i++) {  //forloop going through all movies
         all_movies[i].genre_score = 0;
         double genre_count = 0.0;
-        // Check if the movie is available on any active streaming service
-        for (int j = 0; j < STREAM_SERVICE_COUNT; j++) {
+        
+        for (int j = 0; j < STREAM_SERVICE_COUNT; j++) {  // Check if the movie is available on any active streaming service
             if (config[j].value == 1 && all_movies[i].services[j] == 1) {
                 movie_score_given++;
-                // Calculate score based on genre weights
-                for (int k = 0; k < GENRE_COUNT; k++) {
+
+                for (int k = 0; k < GENRE_COUNT; k++) {   // Calculate score based on genre weights
                     if (all_movies[i].genre[k] == 1) {
                         int genre_weight = config[STREAM_SERVICE_COUNT + SETTING_COUNT + k].value;
                         all_movies[i].genre_score += genre_weight;
-                        genre_count = genre_count + 1.0;
-                        
+                        genre_count = genre_count + 1.0;   
                     }
                 }
                 
                 // Option from config: Adds a balancing factor for movies with multiple genres
                 all_movies[i].genre_score /= BALANCING_FACTOR(genre_count, config);
 
-                break; // No need to check other streaming services
+                break; // No need to check other streaming services, goes to next movie
             }
         }
     }
@@ -553,48 +519,44 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
     // Use qsort to sort movies based on scores
     qsort(all_movies, MAX_MOVIES, sizeof(struct movie), compareMovies);
 
-    // Copy the top movies to the result array
+    // Copy the top movies to the an array with the movies that will be pressented
     for (int i = 0; i < top_count; i++) {
         top_movies[i] = all_movies[i];
     }
 
-    
-    int rand_one = (rand() % (movie_score_given - 3)) + 3;    
-    int rand_two = (rand() % (movie_score_given - 3)) + 3;
+    int rand_one = (rand() % (movie_score_given - 3)) + 3;      //Generete random number witch is between 0 and available movies
+    int rand_two = (rand() % (movie_score_given - 3)) + 3;      //The numbers have +3 in the end, to avoid the three top movies
 
-    while (rand_one == rand_two) {                         //checks if the two random movies are differet
+    while (rand_one == rand_two) {              //Checks if the two random movies are differet
         rand_one = (rand() % (movie_score_given - 3)) + 3;
     }
-    top_movies[3] = all_movies[rand_one];
+
+    top_movies[3] = all_movies[rand_one];       //Adds the random movie into the presenting array
     top_movies[4] = all_movies[rand_two];
 }
 
+// Function to choose the choice of scaling/balancing factor
 double BALANCING_FACTOR(double genre_count, setting * config)
 {
-    if (config[12].value == 1) {
+    if (config[12].value == 1) {            //Looks if squarroot config is on
         return sqrt(genre_count);
     }
-    
-    else if (config[13].value == 1) {
+    else if (config[13].value == 1) {       //Looks if linear config is on
         return(genre_count);
     }
-    else if (config[14].value == 1) {
+    else if (config[14].value == 1) {       //Looks if logaritmic config is on
         return(log(genre_count+1));
     }
 
+    return 0.0;        //returns zero if there somehow happed to be a mistake where nun where turned on
 }
-// ############################
-// ###### print functions #####
-// ############################
 
-// ######################
 // ###### Weighting #####
-// ######################
-
-void weight_genre(struct movie movie, setting *config)
+//Function to weight genres
+void weight_genre(struct movie movie, setting *config) 
 {
     int user_input = 2;
-    do{
+    do {
         screen_clear();
         printf("Return to the program when you have watched the movie...\n");
         printf("Did you enjoy this movie?\n");
@@ -602,118 +564,121 @@ void weight_genre(struct movie movie, setting *config)
         printf("2:  No\n");
         printf("0:  Don't know\n"); 
         user_input = scanf_for_int();
-    }
-    while(user_input < 0 || user_input > 2);
+    } while(user_input < 0 || user_input > 2); //Checks if user entered a valid number
+    
     screen_clear();
-    if(user_input == 2){
-        subtract_weight(movie, config);
+    if (user_input == 2) {
+        subtract_weight(movie, config);        //Substracts weight if user disliked the movie
     }
 
-    else if(user_input == 1){
-        add_weight(movie, config);
+    else if (user_input == 1) {
+        add_weight(movie, config);             //Adds weight if user liked the movie
     }
-    write_config(config);
+
+    write_config(config);                      //Updates user configuration
 }
 
-void subtract_weight(struct movie movie, setting *config)
+//Function to substract weight if user did not like movie
+void subtract_weight(struct movie movie, setting *config)     
 {
-    int config_offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
+    int config_offset = STREAM_SERVICE_COUNT + SETTING_COUNT; //Integer that assures the correct spaces are overwritten in config
     
-    for(int i = 0; i < MAX_GENRES; i++){
-        if(movie.genre[i] == 1){
-            if(config[config_offset + i].value > 7 && config[config_offset + i].value <= 10){
+    for (int i = 0; i < MAX_GENRES; i++) {                     //Checks each genre
+        if (movie.genre[i] == 1) {                             //If genre applies to the movie...
+            if (config[config_offset + i].value > 7 && config[config_offset + i].value <= 10) { 
                 
-                if(config[config_offset + i].value == 10){
-                    config[config_offset + i].value -= 3;
+                if (config[config_offset + i].value == 10) {
+                    config[config_offset + i].value -= 3;     //Subtracts 3 if user genre value is max
                 }
-                else{
-                    config[config_offset + i].value -= 2;
+                else {
+                    config[config_offset + i].value -= 2;     //Substracts 2 if user genre value is 8 or 9
                 }
             }
-            else if(config[config_offset + i].value == 1){
-                continue;
+            else if (config[config_offset + i].value == 1) {
+                continue;                                     //Ignores if user genre value is minimum
             }
-            else{
-                config[config_offset + i].value -= 1;
+            else {
+                config[config_offset + i].value -= 1;         //Subtracts one if user genre value is between 2 and 7
             }
         }
-
-    }
-
-        
+    }   
 }
 
-void add_weight(struct movie movie, setting *config)
+//Function to add weight if user liked movie
+void add_weight(struct movie movie, setting *config)         
 {
-    int config_offset = STREAM_SERVICE_COUNT + SETTING_COUNT;
+    int config_offset = STREAM_SERVICE_COUNT + SETTING_COUNT; //Integer that assures the correct spaces are overwritten in config
     
-    for(int i = 0; i < MAX_GENRES; i++){
-        if(movie.genre[i] == 1){
-            if(config[config_offset + i].value < 4 && config[config_offset + i].value > 0){
+    for (int i = 0; i < MAX_GENRES; i++) {                     //Checks each genre
+        if (movie.genre[i] == 1) {                             //If genre applies to the movie...
+            if (config[config_offset + i].value < 4 && config[config_offset + i].value > 0){
                 
-                if(config[config_offset + i].value == 1){
-                    config[config_offset + i].value += 3;
+                if (config[config_offset + i].value == 1) {
+                    config[config_offset + i].value += 3;     //User genre value is minimum, add 3
                 }
-                else{
-                    config[config_offset + i].value += 2;
+                else {
+                    config[config_offset + i].value += 2;     //User genre value is 2 or 3, add 2
                 }
             }
-            else if(config[config_offset + i].value == 10){
-                continue;
+            else if (config[config_offset + i].value == 10) {
+                continue;                                     //Ignore if user genre value is max
             }
-            else{
-                config[config_offset + i].value += 1;
+            else {
+                config[config_offset + i].value += 1;         //User genre value is between 4 and 9, add 1
             }
         }
     } 
 }
 
-void select_movie(struct movie show_five_movie_arr[], setting *config)
+//Function that shows recommendation menu and handles users choice
+void select_movie(struct movie show_five_movie_arr[], setting *config) 
 {
     int i = 0;
     int movie_pick = 0;
-    do{
+    do {
         screen_clear();
         printf("===== Recommendations =====\n\n");
-        for(int i = 0; i < 5; i++){
-            printf("Movie %d: %s\n", i+1, show_five_movie_arr[i].title);
+        for (int i = 0; i < 5; i++) {
+            printf("Movie %d: %s\n", i+1, show_five_movie_arr[i].title); //Prints each recommendation
         }   
         printf("\nSelect a movie to show information (1-5) or 0 to return:\n");
-        movie_pick = scanf_for_int();
-        if(movie_pick == 0){
+        movie_pick = scanf_for_int();                                    //User picks one of five recommendations
+        if (movie_pick == 0) {                                           //Returns to menu with 0
             break;
         }
 
-        i = print_info(show_five_movie_arr[movie_pick - 1], config, (movie_pick - 1));
-    }while(i == 0);
+        i = print_info(show_five_movie_arr[movie_pick - 1], config, (movie_pick - 1)); //Prints movie info when a movie is selected
+    } while(i == 0);
     
     screen_clear();
-    if(movie_pick > 0){
-        weight_genre(show_five_movie_arr[movie_pick - 1], config);
+    if (movie_pick > 0) { //If movie pick is more than 0, it means the user has chosen a movie to watch
+        weight_genre(show_five_movie_arr[movie_pick - 1], config); //Therefore, the weight genre function is called
     }
 }
 
-int print_info(struct movie movie, setting *config, int movie_pick)
+//Prints info on a given movie. Called in select_movie function
+int print_info(struct movie movie, setting *config, int movie_pick) 
 {
     int user_input;
-    char *genre_array[] = {"Action", "Adventure","Drama", "Crime", 
+    char *genre_array[] = {"Action", "Adventure","Drama", "Crime",  //Generates a array with all available generes
                             "Romance", "Fantasy", "Mystery", "Music", 
                             "Sport", "Animation", "Biography", "History", 
                             "Scifi", "War", "Family", "Thriller", "Horror", 
                             "Comedy", "Western","Musical"};
-    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney+", 
+    char *service_array[] = {"Netflix", "DRTV","HBO Max", "Disney+",    //Generates a array with all available servises
                             "TV2 Play", "SkyShowtime", "Filmstriben", "Viaplay", 
                             "C more", "Amazon Prime", "Rakuten"};
-    do{
+
+    do {
         screen_clear();
-        printf("=== Movie info ===\n\n");
+        printf("=== Movie info ===\n\n");                     //Prints all info on the movie
         printf("Title:           %s\n", movie.title);
         printf("Year of release: %d\n",movie.year);
         printf("PG-rating:       %s\n", movie.pg);
         printf("Runtime:         %d min\n", movie.runtime);
         printf("Genre(s):       ");
-        for(int i = 0; i < MAX_GENRES; i++){
-            if(movie.genre[i] == 1){
+        for (int i = 0; i < MAX_GENRES; i++) {                //Prints genre(s)
+            if (movie.genre[i] == 1) {
                 printf(" %s", genre_array[i]);
             }
         }
@@ -721,9 +686,9 @@ int print_info(struct movie movie, setting *config, int movie_pick)
         printf("IMDB rating:     %d/100\n\n", movie.score);
         printf("Resume:\n%s\n\n", movie.resume);
     
-        printf("Avaliable on the following services:\n");
-        for(int i = 0; i < MAX_SERVICES; i++){
-            if(movie.services[i] == 1){
+        printf("Avaliable on the following services:\n");     //Prints service(s)
+        for (int i = 0; i < MAX_SERVICES; i++) {
+            if (movie.services[i] == 1) {
                 printf(" --> %s\n", service_array[i]);
             }
         }
@@ -733,39 +698,40 @@ int print_info(struct movie movie, setting *config, int movie_pick)
         printf("Type 2 to explain this recommendation\n");
         printf("Type 0 to return to recommendations\n");
         printf("======================================\n");
-        user_input = scanf_for_int();
+        user_input = scanf_for_int();                        //User chooses to return, watch or explain
     
-        if(user_input == 2){
-            explain(movie, config, genre_array, movie_pick);
+        if (user_input == 2) {
+            explain(movie, config, genre_array, movie_pick); //Explain function
         }
-    }while (user_input > 1 || user_input < 0);
+    } while (user_input > 1 || user_input < 0);              //Checks if user typed a correct input
 
-    if(user_input == 1){
-        return user_input;
+    if (user_input == 1) {        
+        return user_input;                                   //The movie was watched and returns one to the select_movie function
     }
-    return 0;
+    return 0;                                                //Returns 0 if user decided to not watch
 }
 
-void explain(struct movie movie, setting *config, char *genre_array[], int movie_pick)
+//Function witch explain why a movie is recommended called in print_info function
+void explain(struct movie movie, setting *config, char *genre_array[], int movie_pick) 
 {
     screen_clear();
     int user_input;
     printf(" === Recommendation Explanation ===\n\n");
-    if(movie_pick < 3){
+    if (movie_pick < 3) {                   //If movie is not a random genereted, prints the following
         printf("%swas recommended", movie.title); 
         printf(" based on your genre preferences and/or previously watched titles.\n\n");
     
-        printf("This movie had the following genre(s) with individual weighting(s):\n");
-        for(int i = 0; i < MAX_GENRES; i++){
-            if(movie.genre[i] == 1){
+        printf("This movie had the following genre(s) with individual weighting(s):\n"); //Prints the user indivudial weightings for the genres of the movie
+        for (int i = 0; i < MAX_GENRES; i++) {
+            if (movie.genre[i] == 1) {
                 printf("%s: %d\n", genre_array[i], config[STREAM_SERVICE_COUNT + SETTING_COUNT + i].value);
             }
         }
-        printf("This means your collected genre score for this movie is: %.2f\n\n", movie.genre_score);
+        printf("This means your collected genre score for this movie is: %.2f\n\n", movie.genre_score); //Prints 
 
         printf("The collected genre score was calculated with:");
-        for(int i = STREAM_SERVICE_COUNT + RESET_OPTION; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++){
-            if(config[i].value == 1){  
+        for (int i = STREAM_SERVICE_COUNT + RESET_OPTION; i < STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
+            if (config[i].value == 1) {  
                 printf(" %s \n", config[i].key);
                 break;
             }
@@ -774,16 +740,15 @@ void explain(struct movie movie, setting *config, char *genre_array[], int movie
         printf("genre on the movie and your prefered choice of scaling.\n");
         printf("You can read more about your scaling options in the setting menu.\n");
     }
-    else{
+    else {              //If movie where randomly selected 
         printf("%swas selected randomnly.\n", movie.title); 
         printf("This way, you will be presented to movies,\n");
         printf("that can help you expand your horizon but\n");
         printf("also prevent you from entering filter bubbles.\n");
     }
 
-    do{
+    do {                //Explains how to return and lets user returns
         printf("\nEnter 0 to return:\n");
         user_input = scanf_for_int();
-    }while(user_input != 0); 
-    //if this is zero is shuld return to movie info page
+    } while(user_input != 0);   //if this is zero is should return to movie info page
 }
