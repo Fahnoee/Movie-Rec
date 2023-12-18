@@ -18,6 +18,7 @@
 #define SETTING_COUNT 4
 #define ARRAY_MENU_LENGTH 4
 #define GENRE_COUNT 20
+#define GENRE_DIFFERENCE 2.0
 #define DEBUG 0
 
 // Prepressor directives, in order to use system("CLEAR_SCREEN") on both mac, linux and windows.
@@ -145,7 +146,7 @@ void print_menu(setting * config, struct movie movie_array[])
     printf("2: Adjust your streaming services\n");
     printf("3: Change genre weights\n");
     printf("4: Settings menu\n");
-    printf("0: Exit\n");
+    printf("0: EXIT\n");
 
     // Ask the user to select a menu option 
     printf("Enter a number: "); 
@@ -501,20 +502,47 @@ void filter_and_rank_movies(setting *config, struct movie all_movies[], struct m
     // Use qsort to sort movies based on scores
     qsort(all_movies, MAX_MOVIES, sizeof(struct movie), compareMovies);
 
-    // Copy the top movies to the result array
-    for (int i = 0; i < top_count; i++) {
-        top_movies[i] = all_movies[i];
+    // Finds how many movies are within the genre difference allowed
+    int amount_of_movies = 3;
+    while (1) {     
+        double multi_score = all_movies[0].genre_score;
+        if (multi_score - GENRE_DIFFERENCE <= all_movies[amount_of_movies].genre_score) {
+            amount_of_movies++;
+        }
+        else {
+            break;
+        }
     }
 
+    // Generate random numbers within allowed genre difference
+    int rand_one = rand() % amount_of_movies;
+    int rand_two = rand() % amount_of_movies;
+    int rand_three = rand() % amount_of_movies;
     
-    int rand_one = (rand() % (movie_score_given - 3)) + 3;      //Generete random number witch is between 0 and available movies    
-    int rand_two = (rand() % (movie_score_given - 3)) + 3;      //The numbers have +3 in the end, to avoid the three top movies
-
-    while (rand_one == rand_two) {                              //Checks if the two random movies are differet
-        rand_one = (rand() % (movie_score_given - 3)) + 3;
+    // Check for duplicates
+    while (rand_two == rand_one) {                                          //Checks if the two random movies are differet
+        rand_two = (rand() % amount_of_movies);
     }
-    top_movies[3] = all_movies[rand_one];       //Adds the random movie into the presenting array                       //Adds the random movie into the presenting array
-    top_movies[4] = all_movies[rand_two];
+
+    while (rand_three == rand_one || rand_three == rand_two ) {             //Checks if the third random movie is differet
+        rand_three = (rand() % amount_of_movies);
+    }
+
+    // Assigns the random movies to the top movies array which will be represented as recommendations
+    top_movies[0] = all_movies[rand_one];
+    top_movies[1] = all_movies[rand_two];
+    top_movies[2] = all_movies[rand_three];
+    
+    
+    int rand_four = (rand() % (movie_score_given - amount_of_movies)) + amount_of_movies;      //Generete random number which is between 0 and available movies    
+    int rand_five = (rand() % (movie_score_given - amount_of_movies)) + amount_of_movies;      //The numbers have +amount_of_movies, to avoid the three top movies
+
+    while (rand_five == rand_four) {             //Checks if the two random movies are differet
+        rand_five = (rand() % (movie_score_given - amount_of_movies)) + amount_of_movies;
+    }
+
+    top_movies[3] = all_movies[rand_four];       //Adds the random movie into the presenting array 
+    top_movies[4] = all_movies[rand_five];
 }
 
 // Function to choose the choice of scaling/balancing factor
@@ -544,9 +572,9 @@ void weight_genre(struct movie movie, setting *config)
         printf("1:  Yes\n");
         printf("2:  No\n");
         printf("0:  Don't know\n\n");
-        printf("If you choose \"Yes\", the genres from the movie will get hightent.\n"); 
-        printf("If you choose \"No\", the genres from the movie will get decreased.\n");
-        printf("If you choose \"Don't know\", no genres will get updated.\n");
+        printf("If you choose ''Yes'', the genres from the movie will get hightent.\n"); 
+        printf("If you choose ''No'', the genres from the movie will get decreased.\n");
+        printf("If you choose ''Don't know'', No genres will get updated.\n");
         printf("==============\n");
         printf("Enter number: ");
         user_input = scanf_for_int(0, 2);
