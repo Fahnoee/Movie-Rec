@@ -98,113 +98,6 @@ int main(void)
         // Genres
         {"Action", 1},
         {"Adventure", 1},
-... (657 linjer linjer tilbage)
-Fold ud
-message.txt
-32 KB
-﻿
-Ross
-ross_ander
-/*
- * This is the main C program file for a movie recommender.
- * It contains various functions for managing streaming services, adjusting preferences, and other features.
- * The program uses structs to represent genres, streaming services, and movies.
- * It also includes file handling functions for reading and writing configuration files.
- */
-
-// ###### Libraries #####
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include "fscanf.c"
-
-// ###### Constant Variables #####
-#define STREAM_SERVICE_COUNT 11
-#define SETTING_COUNT 4
-#define ARRAY_MENU_LENGTH 4
-#define GENRE_COUNT 20
-#define DEBUG 0
-
-// Prepressor directives, in order to use system("CLEAR_SCREEN") on both mac, linux and windows.
-#ifdef _WIN32
-#define CLEAR_SCREEN "cls"
-#else
-#define CLEAR_SCREEN "clear"
-#endif
-
-// ###### Structs #####
-typedef struct
-{
-    char key[50];
-    int value;
-} setting;
-
-
-// ###### Prototypes #####
-void get_recommendation(setting * config, struct movie movie[]);
-void print_config_items(setting *config, int offset, const char *header, int print_array_length, int valueBool);
-void change_settings(setting* config);
-void change_genre_config(setting *config);
-void change_s_services(setting * config);
-void print_menu(setting *config, struct movie movies_array[]);
-void quit_function();
-void write_config(setting *key_value_pair);
-void check_file_opening(FILE *f);
-void read_config(setting *config);
-void reset_conf(setting * config);
-int toggle_setting(setting *config, int offset, int setting, int valueBool);
-int change_setting_value(setting *config, int setting);
-int scanf_for_int(int min_value, int max_value);
-void reset_conf(setting * config);
-void get_recommendation(setting *config, struct movie all_movies[]);
-void filter_and_rank_movies(setting *config, struct movie all_movies[], struct movie top_movies[], int top_count); 
-void subtract_weight(struct movie movie, setting *config);
-void add_weight(struct movie movie, setting *config);
-void weight_genre(struct movie movie, setting *config);
-int print_info(struct movie movie, setting *config, int movie_pick);
-void select_movie(struct movie show_five_movie_arr[], setting *config);
-void explain(struct movie movie, setting *config, char *genre_array[], int movie_pick);
-double balancing_factor(double genre_count, setting * config);
-void screen_clear();
-
-
-// ##### MAIN #####
-int main(void)
-{
-    srand(time(NULL));                      //Generate random seed for picking random movies later
-    struct movie movie_array[MAX_MOVIES];   //Generate movie struct array to contain all movies
-
-    FILE *f = fopen("movies.txt", "r");     //Opens data set
-    check_file_opening(f);                  //Checks if file is open corretly
-
-    for(int i = 0; i < MAX_MOVIES; i++) {   //Imports movies from fil line by line
-        movie_array[i] = import_movies(f);
-    }
-    fclose(f);                              //Closes file
-   
-    setting config[STREAM_SERVICE_COUNT + SETTING_COUNT + GENRE_COUNT] = {  //Genereta a config struct for:
-        // Streaming service's
-        {"Netflix", 1},
-        {"DRTV", 1},
-        {"HBO max", 1},
-        {"Disney+", 1},
-        {"TV2play", 1},
-        {"SkyShowtime", 1},
-        {"Filmstriben", 1},
-        {"Viaplay", 1},
-        {"Cmore", 1},
-        {"Amazone Prime", 1},
-        {"Rakuten", 1},
-        // Other settings
-        {"Reset all", 0},
-        {"Square root scaling", 1},
-        {"Linear scaling", 0},
-        {"Logarithmic scaling", 0},
-        // Genres
-        {"Action", 1},
-        {"Adventure", 1},
         {"Drama", 1},
         {"Crime", 1},
         {"Romance", 1},
@@ -843,12 +736,13 @@ void explain(struct movie movie, setting *config, char *genre_array[], int movie
     do {                                    //Explains how to return and lets user returns
         printf("\nEnter 0 to return:\n");
         user_input = scanf_for_int(0,0);
-    } while(user_input != 0);     //if this is zero is shuld return to movie info page
+    } while(user_input != 0); 
+    //if this is zero is shuld return to movie info page
 }
 
 // ###### Other functions ######
 // Function to check if the program is in "debug-mode"
-// Debug mode means no clear screan
+// If debug mode on it disables clear screen
 void screen_clear() {
     if (DEBUG == 0)
         system(CLEAR_SCREEN);
@@ -857,7 +751,7 @@ void screen_clear() {
 /* Function for testing if a file is read correctly */
 void check_file_opening(FILE *f)
 {
-    if (f == NULL) {    // if file has been opened incorrectly fucntion will return NULL
+    if (f == NULL) {    // if open file function fails to open file it returns NULL
         printf("There has been a fail in loading your file, now exiting...\n");
         exit(EXIT_FAILURE);
     }
