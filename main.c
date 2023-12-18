@@ -544,9 +544,9 @@ void weight_genre(struct movie movie, setting *config)
         printf("1:  Yes\n");
         printf("2:  No\n");
         printf("0:  Don't know\n\n");
-        printf("If you choose ''Yes'', the genres from the movie will get hightent.\n"); 
-        printf("If you choose ''No'', the genres from the movie will get decreased.\n");
-        printf("If you choose ''Don't know'', no genres will get updated.\n");
+        printf("If you choose \"Yes\", the genres from the movie will get hightent.\n"); 
+        printf("If you choose \"No\", the genres from the movie will get decreased.\n");
+        printf("If you choose \"Don't know\", no genres will get updated.\n");
         printf("==============\n");
         printf("Enter number: ");
         user_input = scanf_for_int(0, 2);
