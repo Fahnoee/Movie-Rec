@@ -289,7 +289,7 @@ void change_settings(setting * config) {
         }
 
         if (user_input >= 2 && user_input <= 4) {       //Changes the scaling choice in the config
-            for (int i = STREAM_SERVICE_COUNT + 1; i <= STREAM_SERVICE_COUNT + SETTING_COUNT; i++) {
+            for (int i = STREAM_SERVICE_COUNT + 1; i <= STREAM_SERVICE_COUNT + SETTING_COUNT - 1; i++) {
                 config[i].value = 0;
             }
 
